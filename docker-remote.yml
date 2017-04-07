@@ -17,6 +17,7 @@ services:
 
     php:
         image: docker-lemp
+        env_file: .env-php
         expose:
           - 9000
         networks:

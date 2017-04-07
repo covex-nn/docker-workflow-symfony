@@ -1,15 +1,15 @@
 {
-    "name": "symfony/framework-standard-edition",
+    "name": "covex-nn/docker-symfony-se",
     "license": "MIT",
     "type": "project",
-    "description": "The \"Symfony Standard Edition\" distribution",
+    "description": "The \"Symfony Standard Edition\" for docker distribution",
     "autoload": {
         "psr-4": { "": "src/" },
         "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
     },
     "autoload-dev": {
         "psr-4": { "Tests\\": "tests/" },
-        "files": [ "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php" ]
+        "files": [ "/composer/vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php" ]
     },
     "require": {
         "php": ">=5.5.9",
@@ -32,11 +32,7 @@
     "scripts": {
         "symfony-scripts": [
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-install-cmd": [
             "@symfony-scripts"
@@ -59,7 +55,19 @@
         "symfony-tests-dir": "tests",
         "symfony-assets-install": "relative",
         "incenteev-parameters": {
-            "file": "app/config/parameters.yml"
+            "file": "app/config/parameters.yml",
+            "env-map": {
+                "database_host": "ENV_database_host",
+                "database_port": "ENV_database_port",
+                "database_name": "ENV_database_name",
+                "database_user": "ENV_database_user",
+                "database_password": "ENV_database_password",
+                "mailer_transport": "ENV_mailer_transport",
+                "mailer_host": "ENV_mailer_host",
+                "mailer_user": "ENV_mailer_user",
+                "mailer_password": "ENV_mailer_password",
+                "secret": "ENV_secret"
+            }
         },
         "branch-alias": {
             "dev-master": "3.2-dev"

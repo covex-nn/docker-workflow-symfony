@@ -19,6 +19,7 @@ services:
         build:
             context: "."
             dockerfile: Dockerfile-dev
+        env_file: .env-php
         expose:
           - 9000
         networks:
