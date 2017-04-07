@@ -1,0 +1,16 @@
+version: "2.1"
+
+services:
+    nginx:
+        networks:
+            nw_internal:
+            nw_external:
+                 ipv4_address: 192.168.10.2
+#                link_local_ips:
+#                  - 192.168.10.2
+
+networks:
+    nw_external:
+        external:
+            name: graynetwork
+    nw_internal:

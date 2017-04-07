@@ -1,0 +1,48 @@
+version: "2.1"
+
+services:
+    nginx:
+        build:
+          context: ./docker/nginx/
+          args:
+            server_name: "${SERVER_NAME}"
+            app_php: "${APP_PHP}"
+        networks:
+          - nw_internal
+          - nw_external
+        ports:
+          - "${NGINX_PORTS}"
+        volumes_from:
+          - "php:ro"
+
+    php:
+        build:
+            context: "."
+            dockerfile: Dockerfile-dev
+        expose:
+          - 9000
+        networks:
+          - nw_internal
+        volumes:
+          - ".:/srv"
+
+    mysql:
+        image: mysql:5.7
+        expose:
+          - 3306
+        networks:
+          - nw_internal
+        environment:
+            MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+            MYSQL_DATABASE: "${DB_NAME}"
+            MYSQL_USER: "${DB_USERNAME}"
+            MYSQL_PASSWORD: "${DB_PASSWORD}"
+        volumes:
+          - database:/var/lib/mysql
+
+volumes:
+    database:
+
+networks:
+    nw_external:
+    nw_internal:

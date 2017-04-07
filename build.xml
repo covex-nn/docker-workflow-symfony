@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project name="Docker PHP App" default="init" basedir=".">
+    <property name="composer.path" value="/usr/local/bin/composer" />
+
+    <target name="init" depends="composer-install,app-init">
+        <echo message="${phing.project.name} Init - OK" />
+    </target>
+
+    <target name="deploy" depends="app-init">
+        <echo message="${phing.project.name} Deploy - OK" />
+    </target>
+
+    <target name="composer-install">
+        <composer composer="${composer.path}" command="install" />
+        <exec executable="sync-vendor" passthru="true" />
+    </target>
+
+    <target name="app-init">
+
+    </target>
+</project>

@@ -1,0 +1,37 @@
+version: "2.1"
+
+services:
+    nginx:
+        build:
+          context: ./docker/nginx/
+          args:
+            server_name: "${SERVER_NAME}"
+            app_php: "${APP_PHP}"
+        networks:
+          - nw_internal
+          - nw_external
+        ports:
+          - "${NGINX_PORTS}"
+        volumes_from:
+          - "php:ro"
+
+    php:
+        image: docker-lemp
+        expose:
+          - 9000
+        networks:
+          - nw_internal
+        volumes:
+          - "/srv"
+
+    mysql:
+        extends:
+            file: docker-compose.yml
+            service: mysql
+
+volumes:
+    database:
+
+networks:
+    nw_external:
+    nw_internal:
