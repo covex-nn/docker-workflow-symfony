@@ -9,7 +9,7 @@ CI
 ---
 
 * `git clone ...`
-* `docker build -t docker-lemp .`
+* `docker build -t docker-lemp --no-cache=true .`
 * `docker push docker-lemp`
 
 Prod-environment
