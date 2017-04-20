@@ -5,12 +5,12 @@ services:
         networks:
             nw_internal:
             nw_external:
-                 ipv4_address: 192.168.10.2
+                 ipv4_address: ${NETWORK_IP}
 #                link_local_ips:
-#                  - 192.168.10.2
+#                  - ${NETWORK_IP}
 
 networks:
     nw_external:
         external:
-            name: graynetwork
+            name: ${NETWORK_NAME}
     nw_internal:
