@@ -15,6 +15,6 @@ CI
 Prod-environment
 ----------------
 
-* @see .env
 * `export APP_PHP=app`
-* `docker-compose -f docker-remote.yml up -d`
+* ... see .env
+* `docker-compose -f docker-remote.yml -f docker-networking.yml up -d`
