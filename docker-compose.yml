@@ -7,39 +7,38 @@ services:
           args:
             server_name: "${SERVER_NAME}"
             app_php: "${APP_PHP}"
+        ports:
+          - "${NGINX_PORTS}"
         networks:
           - nw_internal
           - nw_external
-        ports:
-          - "${NGINX_PORTS}"
+        depends_on:
+          - php
         volumes_from:
           - "php:ro"
 
     php:
+        extends:
+            file: docker-common.yml
+            service: php
         build:
             context: "."
             dockerfile: Dockerfile-dev
-        env_file: .env-php
         expose:
           - 9000
         networks:
           - nw_internal
+        depends_on:
+          - mysql
         volumes:
           - ".:/srv"
 
     mysql:
-        image: mysql:5.7
-        expose:
-          - 3306
+        extends:
+            file: docker-common.yml
+            service: mysql
         networks:
           - nw_internal
-        environment:
-            MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-            MYSQL_DATABASE: "${DB_NAME}"
-            MYSQL_USER: "${DB_USERNAME}"
-            MYSQL_PASSWORD: "${DB_PASSWORD}"
-        volumes:
-          - database:/var/lib/mysql
 
 volumes:
     database:
