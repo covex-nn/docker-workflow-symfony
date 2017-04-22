@@ -21,7 +21,7 @@ services:
         extends:
             file: docker-common.yml
             service: php
-        image: docker-lemp
+        image: "${APNET_REGISTRY_IMAGE_TAG}"
         expose:
           - 9000
         networks:
