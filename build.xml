@@ -30,6 +30,16 @@
             <arg value="--no-interaction" />
         </SymfonyConsole>
 
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status">
+            <arg name="env" value="${symfony.env}" />
+        </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:migrate">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--no-interaction" />
+            <arg value="--allow-no-migration" />
+        </SymfonyConsole>
+
         <SymfonyConsole console="${symfony.console}" command="assets:install">
             <arg name="env" value="${symfony.env}" />
             <arg value="--symlink" />
