@@ -5,7 +5,7 @@
     <property name="symfony.env" value="dev" />
     <property name="symfony.var" value="${project.basedir}/var" />
 
-    <target name="init" depends="composer-install,app-init">
+    <target name="init" depends="composer-install,app-init,db-migrate">
         <echo message="${phing.project.name} Init - OK" />
     </target>
 
@@ -30,6 +30,14 @@
             <arg value="--no-interaction" />
         </SymfonyConsole>
 
+        <SymfonyConsole console="${symfony.console}" command="assets:install">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--symlink" />
+            <arg value="web" />
+        </SymfonyConsole>
+    </target>
+
+    <target name="db-migrate">
         <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
@@ -38,12 +46,6 @@
             <arg name="env" value="${symfony.env}" />
             <arg value="--no-interaction" />
             <arg value="--allow-no-migration" />
-        </SymfonyConsole>
-
-        <SymfonyConsole console="${symfony.console}" command="assets:install">
-            <arg name="env" value="${symfony.env}" />
-            <arg value="--symlink" />
-            <arg value="web" />
         </SymfonyConsole>
     </target>
 </project>
