@@ -9,6 +9,7 @@ services:
             app_php: "${APP_PHP}"
         ports:
           - "${NGINX_PORTS}"
+        restart: always
         networks:
           - nw_internal
           - nw_external
@@ -26,6 +27,7 @@ services:
           - 9000
         networks:
           - nw_internal
+        restart: always
         depends_on:
           - mysql
         volumes:

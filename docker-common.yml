@@ -23,5 +23,6 @@ services:
             MYSQL_DATABASE: "${DB_NAME}"
             MYSQL_USER: "${DB_USERNAME}"
             MYSQL_PASSWORD: "${DB_PASSWORD}"
+        restart: always
         volumes:
           - database:/var/lib/mysql
