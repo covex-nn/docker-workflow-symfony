@@ -11,8 +11,11 @@ services:
           - "${NGINX_PORTS}"
         restart: always
         networks:
-          - nw_internal
-          - nw_external
+            nw_internal:
+            nw_external:
+                ipv4_address: ${NETWORK_IP}
+#                link_local_ips:
+#                  - ${NETWORK_IP}
         depends_on:
           - php
         volumes_from:
@@ -45,4 +48,6 @@ volumes:
 
 networks:
     nw_external:
+        external:
+            name: ${NETWORK_NAME}
     nw_internal:

@@ -17,4 +17,4 @@ Prod-environment
 
 * `export APP_PHP=app`
 * ... see .env
-* `docker-compose -f docker-remote.yml -f docker-networking.yml up -d`
+* `docker-compose -f docker-compose-deploy.yml up -d`
