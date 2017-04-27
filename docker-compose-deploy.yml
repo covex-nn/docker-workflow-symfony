@@ -25,7 +25,7 @@ services:
         extends:
             file: docker-common.yml
             service: php
-        image: "${APNET_REGISTRY_IMAGE_TAG}"
+        image: "${CI_REGISTRY_IMAGE_WITH_TAG}"
         expose:
           - 9000
         networks:

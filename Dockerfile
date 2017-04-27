@@ -4,8 +4,10 @@ WORKDIR /srv
 
 COPY composer.json ./
 COPY composer.lock ./
+COPY var/ ./var/
 
-RUN composer install \
+RUN composer config -g cache-dir ./var/cache/composer \
+    && composer install \
         --prefer-dist \
         --no-scripts \
         --no-autoloader \
@@ -20,11 +22,10 @@ RUN chmod -R -x+X . \
     && sed 's/^/export /' .env > /tmp/.composer-run-script \
     && echo 'composer run-script post-install-cmd' >> /tmp/.composer-run-script \
     && chmod 755 /tmp/.composer-run-script \
-    && cat /tmp/.composer-run-script \
     && sh /tmp/.composer-run-script \
-    && rm /tmp/.composer-run-script
-
-RUN phing deploy -Dsymfony.env=prod
+    && rm /tmp/.composer-run-script \
+    && composer clear-cache \
+    && phing deploy -Dsymfony.env=prod
 
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]
