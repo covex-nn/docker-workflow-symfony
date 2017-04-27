@@ -2,6 +2,7 @@ FROM covex/php7.1-fpm:1.0
 
 RUN docker-php-ext-enable xdebug \
     && addgroup -g 50 docker \
-    && adduser -D -u 1000 -G docker docker
+    && adduser -D -u 1000 -G docker docker \
+    && composer config -g cache-dir ./var/cache/composer
 
 WORKDIR /srv
