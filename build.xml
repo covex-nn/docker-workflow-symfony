@@ -14,6 +14,11 @@
     </target>
 
     <target name="composer-install">
+        <composer composer="${composer.path}" command="config">
+            <arg value="-g" />
+            <arg value="cache-dir" />
+            <arg value="/srv/var/cache/composer" />
+        </composer>
         <composer composer="${composer.path}" command="install" />
         <exec executable="sync-vendor" passthru="true" />
     </target>
