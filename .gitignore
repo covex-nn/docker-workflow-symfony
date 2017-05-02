@@ -1,6 +1,7 @@
 /.idea
 /.sync
 /auth.json
+/.web-server-pid
 /app/config/parameters.yml
 /build/
 /phpunit.xml
