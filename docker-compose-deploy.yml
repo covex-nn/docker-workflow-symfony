@@ -40,6 +40,7 @@ services:
         extends:
             file: docker-common.yml
             service: mysql
+        restart: always
         networks:
           - nw_internal
 
