@@ -25,17 +25,17 @@
 
     <target name="app-init">
         <delete dir="${symfony.var}/cache/${symfony.env}" />
-        <SymfonyConsole console="${symfony.console}" command="cache:warmup">
+        <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
 
-        <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update">
+        <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--force" />
             <arg value="--no-interaction" />
         </SymfonyConsole>
 
-        <SymfonyConsole console="${symfony.console}" command="assets:install">
+        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--symlink" />
             <arg value="web" />
@@ -43,11 +43,11 @@
     </target>
 
     <target name="db-migrate">
-        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status">
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
 
-        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:migrate">
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:migrate" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--no-interaction" />
             <arg value="--allow-no-migration" />
