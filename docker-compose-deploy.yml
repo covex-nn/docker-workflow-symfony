@@ -35,6 +35,7 @@ services:
           - mysql
         volumes:
           - "/srv"
+          - "/composer/vendor"
 
     mysql:
         extends:
