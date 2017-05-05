@@ -32,7 +32,8 @@ services:
           - nw_internal
         restart: always
         depends_on:
-          - mysql
+            mysql:
+                condition: service_healthy
         volumes:
           - "/srv"
           - "/composer/vendor"

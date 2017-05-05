@@ -15,7 +15,8 @@ services:
             ENV_secret: "${ENV_secret}"
 
     mysql:
-        image: mysql:5.7
+        build:
+            context: ./docker/mysql/
         expose:
           - 3306
         environment:

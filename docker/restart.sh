@@ -10,9 +10,9 @@ fi
 cp -r ''"$DEPLOY_DIRECTORY"'_tmp' $DEPLOY_DIRECTORY
 cd $DEPLOY_DIRECTORY
 docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-docker-compose pull php
-docker-compose up -d --build
-docker-compose exec -T php php bin/console --env=prod doctrine:migrations:status
-docker-compose exec -T php php bin/console --env=prod --no-interaction --allow-no-migration doctrine:migrations:migrate
+docker-compose build --force-rm --pull
+docker-compose up -d --remove-orphans
+#sleep 60
+docker-compose exec -T php phing app-update -Dsymfony.env=prod
 
 rm -rf ''"$DEPLOY_DIRECTORY"'_tmp'
