@@ -25,7 +25,7 @@ RUN chmod -R -x+X . \
     && sh /tmp/.composer-run-script \
     && rm /tmp/.composer-run-script \
     && composer clear-cache \
-    && phing deploy -Dsymfony.env=prod
+    && phing image-prepare
 
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]

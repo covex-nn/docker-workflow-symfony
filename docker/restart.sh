@@ -12,6 +12,6 @@ docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 docker-compose pull
 docker-compose build --force-rm --pull
 docker-compose up -d --remove-orphans
-docker-compose exec -T php phing app-update -Dsymfony.env=prod
+docker-compose exec -T php phing app-deploy -Dsymfony.env=prod
 
 rm -rf ''"$DEPLOY_DIRECTORY"'_tmp'

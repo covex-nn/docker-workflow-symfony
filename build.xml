@@ -5,12 +5,8 @@
     <property name="symfony.env" value="dev" />
     <property name="symfony.var" value="${project.basedir}/var" />
 
-    <target name="init" depends="composer-install,app-init,app-update">
+    <target name="init" depends="composer-install,image-prepare,app-deploy">
         <echo message="${phing.project.name} Init - OK" />
-    </target>
-
-    <target name="deploy" depends="app-init">
-        <echo message="${phing.project.name} Deploy - OK" />
     </target>
 
     <target name="composer-install">
@@ -25,16 +21,19 @@
         <echo message="${phing.project.name} ComposerInstall - OK" />
     </target>
 
-    <target name="app-init">
-        <delete dir="${symfony.var}/cache/${symfony.env}" />
-        <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
+    <target name="image-prepare">
+        <!-- do something before (and without) symfony console -->
+        <echo message="${phing.project.name} AppInit - OK" />
+    </target>
+
+    <target name="app-deploy">
+        <SymfonyConsole console="${symfony.console}" command="cache:clear" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
+            <arg value="--no-warmup" />
         </SymfonyConsole>
 
-        <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
+        <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
-            <arg value="--force" />
-            <arg value="--no-interaction" />
         </SymfonyConsole>
 
         <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
@@ -43,14 +42,12 @@
             <arg value="web" />
         </SymfonyConsole>
 
-        <echo message="${phing.project.name} AppInit - OK" />
-    </target>
+        <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--force" />
+            <arg value="--no-interaction" />
+        </SymfonyConsole>
 
-    <target name="app-update" depends="db-migrate">
-        <echo message="${phing.project.name} AppUpdate - OK" />
-    </target>
-
-    <target name="db-migrate">
         <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
@@ -61,6 +58,6 @@
             <arg value="--allow-no-migration" />
         </SymfonyConsole>
 
-        <echo message="${phing.project.name} DbMigrate - OK" />
+        <echo message="${phing.project.name} AppUpdate - OK" />
     </target>
 </project>
