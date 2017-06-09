@@ -12,6 +12,7 @@ services:
             ENV_mailer_host: "${ENV_mailer_host}"
             ENV_mailer_user: "${ENV_mailer_user}"
             ENV_mailer_password: "${ENV_mailer_password}"
+            ENV_mailer_from: "${ENV_mailer_from}"
             ENV_secret: "${ENV_secret}"
 
     mysql:

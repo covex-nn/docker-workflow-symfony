@@ -34,6 +34,22 @@ services:
           - ".:/srv"
           - "/composer/vendor"
 
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+          - 8080:80
+        networks:
+          - nw_internal
+        environment:
+          PMA_ARBITRARY: "1"
+          PMA_HOST: "mysql"
+          PMA_USER: "root"
+          PMA_PASSWORD: "${ENV_database_root_password}"
+        depends_on:
+          - mysql
+        volumes:
+          - /sessions
+
     mysql:
         extends:
             file: docker-common.yml

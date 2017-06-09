@@ -1,0 +1,190 @@
+image: docker:latest
+
+variables:
+    DOCKER_DRIVER: overlay
+    CI_REGISTRY_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    APP_PHP: "app"
+    NGINX_PORTS: "80"
+
+stages:
+  - lint
+  - deps
+  - test
+  - build
+  - deploy
+
+.template-docker-compose: &docker-compose
+    stage: build
+    image: covex/docker-compose:1.0
+    script:
+      - mkdir build
+      - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
+      - sed -i 's/\/builds\/'"$CI_PROJECT_NAMESPACE"'\/'"$CI_PROJECT_NAME"'/\./g' build/docker-compose.yml
+      - cp -R docker build
+      - chmod 744 build/docker/restart.sh
+    artifacts:
+        untracked: true
+        name: "$CI_COMMIT_REF_NAME"
+        paths:
+          - build/
+    tags:
+      - executor-docker
+
+.template-secure-copy: &secure-copy
+    stage: deploy
+    image: covex/alpine-git:1.0
+    before_script:
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    script:
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          rm -rf '"$DEPLOY_DIRECTORY"'_tmp ;
+          mkdir -p '"$DEPLOY_DIRECTORY"'_tmp'
+      - scp -P 22 -r build/* ''"$DEPLOY_USER"'@'"$DEPLOY_HOST"':'"$DEPLOY_DIRECTORY"'_tmp'
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          export DEPLOY_DIRECTORY="'"$DEPLOY_DIRECTORY"'" ;
+          export CI_JOB_TOKEN="'"$CI_JOB_TOKEN"'" ;
+          export CI_REGISTRY="'"$CI_REGISTRY"'" ;
+          cd '"$DEPLOY_DIRECTORY"'_tmp ;
+          ./docker/restart.sh'
+    tags:
+      - executor-docker
+
+.template-docker-image: &build-image
+    stage: build
+    image: covex/docker-compose:1.0
+    services:
+      - docker:dind
+    script:
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build -t $CI_REGISTRY_IMAGE_WITH_TAG --no-cache=true .
+      - docker push $CI_REGISTRY_IMAGE_WITH_TAG
+    dependencies:
+      - deps:php-composer
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+lint:docker-compose:
+    stage: lint
+    image: covex/docker-compose:1.0
+    script:
+      - docker-compose config --services
+    tags:
+      - executor-docker
+
+deps:php-composer:
+    stage: deps
+    image: covex/php7.1-fpm:1.0
+    before_script:
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+      - composer install --prefer-dist --no-scripts --no-autoloader --no-dev --no-interaction
+    script:
+      - cp -f -r /composer/home/cache ./var/cache/composer
+    artifacts:
+        untracked: true
+        name: "$CI_COMMIT_REF_NAME"
+        paths:
+          - var/cache/composer/
+    tags:
+      - executor-docker
+
+test:phpunit:
+    stage: test
+    image: covex/php7.1-fpm:1.0
+    before_script:
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+      - sed 's/^/export /' .env > /tmp/.env-script
+      - echo 'composer install' >> /tmp/.env-script
+      - chmod 755 /tmp/.env-script
+      - /tmp/.env-script
+    script:
+      - composer require phpunit/phpunit:* --dev
+      - phpunit
+    dependencies: []
+    tags:
+      - executor-docker
+
+build:docker-image-master:
+    <<: *build-image
+    only:
+      - master
+    except:
+      - tags
+
+build:docker-image-production:
+    <<: *build-image
+    only:
+      - /^release-.*$/
+    except:
+      - branches
+
+build:docker-compose-master:
+    <<: *docker-compose
+    variables:
+        SERVER_NAME: "${SERVER_NAME_MASTER}"
+        NETWORK_NAME: "${NETWORK_NAME_MASTER}"
+        NETWORK_IP: "${NETWORK_IP_MASTER}"
+    only:
+      - master
+    except:
+      - tags
+    dependencies: []
+
+build:docker-compose-production:
+    <<: *docker-compose
+    variables:
+        SERVER_NAME: "${SERVER_NAME_PRODUCTION}"
+        NETWORK_NAME: "${NETWORK_NAME_PRODUCTION}"
+        NETWORK_IP: "${NETWORK_IP_PRODUCTION}"
+    only:
+      - /^release-.*$/
+    except:
+      - branches
+    dependencies: []
+
+deploy:secure-copy-master:
+    variables:
+        DEPLOY_USER: "${DEPLOY_USER_MASTER}"
+        DEPLOY_HOST: "${DEPLOY_HOST_MASTER}"
+        DEPLOY_DIRECTORY: "${DEPLOY_DIRECTORY_MASTER}"
+    <<: *secure-copy
+    only:
+      - master
+    except:
+      - tags
+    environment:
+        name: staging
+    dependencies:
+      - build:docker-compose-master
+
+deploy:secure-copy-production:
+    variables:
+        DEPLOY_USER: "${DEPLOY_USER_PRODUCTION}"
+        DEPLOY_HOST: "${DEPLOY_HOST_PRODUCTION}"
+        DEPLOY_DIRECTORY: "${DEPLOY_DIRECTORY_PRODUCTION}"
+    <<: *secure-copy
+    only:
+      - /^release-.*$/
+    except:
+      - branches
+    environment:
+        name: production
+    dependencies:
+      - build:docker-compose-production
+
+deploy:sync-project-forks:
+    stage: deploy
+    image: covex/alpine-git:1.0
+    before_script:
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    script:
+      - git branch -d stable || true
+      - git checkout -b stable
+      - for FORK in $PROJECT_FORKS; do git remote add fork $FORK && git push -f fork stable && git remote rm fork; done
+    only:
+      - master
+    dependencies: []
+    tags:
+      - executor-docker

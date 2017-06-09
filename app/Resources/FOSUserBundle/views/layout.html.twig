@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body_core %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-1 col-sm-2 col-md-3"></div>
+            <div class="col-xs-10 col-sm-8 col-md-6">
+                {% if app.request.hasPreviousSession %}
+                    {% for type, messages in app.session.flashBag.all %}
+                        {% for message in messages %}
+                            <div class="alert {% if type == 'success' %}alert-{{ type }}{% else %}alert-info{% endif %}" role="alert">
+                                {{ message|trans({}, 'FOSUserBundle') }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+                {% block fos_user_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets_core %}
+    {{ parent() }}
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+        }
+        @media (max-width: 980px) {
+            body {
+                padding-top: 20px;
+            }
+        }
+    </style>
+{% endblock %}
