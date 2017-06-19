@@ -1,7 +1,6 @@
 image: docker:latest
 
 variables:
-    DOCKER_DRIVER: overlay
     CI_REGISTRY_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
     APP_PHP: "app"
     NGINX_PORTS: "80"
@@ -52,13 +51,12 @@ stages:
 
 .template-docker-image: &build-image
     stage: build
-    image: covex/docker-compose:1.0
-    services:
-      - docker:dind
+    image: docker:latest
     script:
-      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker build -t $CI_REGISTRY_IMAGE_WITH_TAG --no-cache=true .
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_REGISTRY_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
     dependencies:
       - deps:php-composer
     tags:
