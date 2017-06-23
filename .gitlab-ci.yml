@@ -16,6 +16,9 @@ stages:
     stage: build
     image: covex/docker-compose:1.0
     script:
+      - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
+          eval 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='$"$name"'';
+        done
       - mkdir build
       - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
       - sed -i 's/\/builds\/'"$CI_PROJECT_NAMESPACE"'\/'"$CI_PROJECT_NAME"'/\./g' build/docker-compose.yml
@@ -120,9 +123,7 @@ build:docker-image-production:
 build:docker-compose-master:
     <<: *docker-compose
     variables:
-        SERVER_NAME: "${SERVER_NAME_MASTER}"
-        NETWORK_NAME: "${NETWORK_NAME_MASTER}"
-        NETWORK_IP: "${NETWORK_IP_MASTER}"
+        ENV_SUFFIX: "_MASTER"
     only:
       - master
     except:
@@ -132,9 +133,7 @@ build:docker-compose-master:
 build:docker-compose-production:
     <<: *docker-compose
     variables:
-        SERVER_NAME: "${SERVER_NAME_PRODUCTION}"
-        NETWORK_NAME: "${NETWORK_NAME_PRODUCTION}"
-        NETWORK_IP: "${NETWORK_IP_PRODUCTION}"
+        ENV_SUFFIX: "_PRODUCTION"
     only:
       - /^release-.*$/
     except:
