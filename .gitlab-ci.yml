@@ -179,7 +179,7 @@ deploy:sync-project-forks:
     script:
       - git branch -d stable || true
       - git checkout -b stable
-      - for FORK in $PROJECT_FORKS; do git remote add fork $FORK && git push -f fork stable && git remote rm fork; done
+      - for FORK in $PROJECT_FORKS; do git remote add fork $FORK && git push fork stable && git remote rm fork; done
     only:
       - master
     dependencies: []
