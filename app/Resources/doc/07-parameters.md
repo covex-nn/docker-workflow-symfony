@@ -13,33 +13,7 @@
     ENV_hwi_facebook_client_secret=4567
     ```
 
-2. Добавить параметр в файл `app/config/parameters.yml.dist`
-
-    ```
-    parameters:
-        hwi_facebook_client_id: ~
-        hwi_facebook_client_secret: ~
-    ```
-    
-2. Добавить инфрмацию о переменной в файл `composer.json` в блок `extra - incenteev-parameters - env-map`
-
-    При скрипта `Incenteev\\ParameterHandler\\ScriptHandler::buildParameters`
-    значения переменных окружения попадут в файл `app/config/parameters.yml`.
-    Скрипт прописан в `composer.json` и исполняется после выполнения `composer install` или `composer update`
-
-    ```
-    "extra" : {
-        "incenteev-parameters" : {
-            "env-map": {
-                ...
-                "hwi_facebook_client_id": "ENV_hwi_facebook_client_id",
-                "hwi_facebook_client_secret": "ENV_hwi_facebook_client_secret"
-            }
-        }
-    }
-    ```
-
-3. Добавить информацию о переменной в файл `docker-common.yml`
+2. Добавить информацию о переменной в файл `docker-common.yml`
 
     Так значения переменных попадаю в окружение контейнера `php`
 
@@ -51,12 +25,21 @@
                 ENV_hwi_facebook_client_secret: "${ENV_hwi_facebook_client_secret}"
     ```
 
-4. Перезапустить docker и обновить файл `composer.lock`
+3. Добавить параметр в файл `app/config/parameters.yml`
+
+    Файл `app/config/parameters.yml` является часть приложения
+
+    ```
+    parameters:
+        hwi_facebook_client_id: "%env(ENV_hwi_facebook_client_id)%"
+        hwi_facebook_client_secret: "%env(ENV_hwi_facebook_client_secret)"
+    ```
+
+4. Перезапустить `docker-compose`
 
     ```
     docker-compose stop
     docker-compose up -d
-    docker-compose exec php composer update --lock
     ```
 
 ## Тестовый сайт разработчика

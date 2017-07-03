@@ -17,7 +17,6 @@
         "doctrine/doctrine-migrations-bundle": "^1.0",
         "doctrine/orm": "^2.5",
         "friendsofsymfony/user-bundle": "2.0.1",
-        "incenteev/composer-parameter-handler": "^2.0",
         "sensio/distribution-bundle": "^5.0.19",
         "sensio/framework-extra-bundle": "^3.0.2",
         "sonata-project/admin-bundle": "^3.0",
@@ -34,7 +33,6 @@
     },
     "scripts": {
         "symfony-scripts": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-install-cmd": [
@@ -57,22 +55,6 @@
         "symfony-web-dir": "web",
         "symfony-tests-dir": "tests",
         "symfony-assets-install": "relative",
-        "incenteev-parameters": {
-            "file": "app/config/parameters.yml",
-            "env-map": {
-                "database_host": "ENV_database_host",
-                "database_port": "ENV_database_port",
-                "database_name": "ENV_database_name",
-                "database_user": "ENV_database_user",
-                "database_password": "ENV_database_password",
-                "mailer_transport": "ENV_mailer_transport",
-                "mailer_host": "ENV_mailer_host",
-                "mailer_user": "ENV_mailer_user",
-                "mailer_password": "ENV_mailer_password",
-                "mailer_from": "ENV_mailer_from",
-                "secret": "ENV_secret"
-            }
-        },
         "branch-alias": {
             "dev-master": "3.3-dev"
         }

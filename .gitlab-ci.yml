@@ -98,12 +98,8 @@ test:phpunit:
     image: covex/php7.1-fpm:1.0
     before_script:
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - sed 's/^/export /' .env > /tmp/.env-script
-      - echo 'composer install' >> /tmp/.env-script
-      - chmod 755 /tmp/.env-script
-      - /tmp/.env-script
-    script:
       - composer require phpunit/phpunit:* --dev
+    script:
       - phpunit
     dependencies: []
     tags:
