@@ -2,7 +2,6 @@
 /.sync
 /auth.json
 /.web-server-pid
-/app/config/parameters.yml
 /build/
 /node_modules
 /phpunit.xml
