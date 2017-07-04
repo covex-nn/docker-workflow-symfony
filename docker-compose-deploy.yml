@@ -2,13 +2,9 @@ version: "2.1"
 
 services:
     nginx:
-        build:
-          context: ./docker/nginx/
-          args:
-            server_name: "${SERVER_NAME}"
-            app_php: "${APP_PHP}"
+        image: "${CI_NGINX_IMAGE_WITH_TAG}"
         ports:
-          - "${NGINX_PORTS}"
+          - "80"
         restart: always
         networks:
             nw_internal:
@@ -17,26 +13,32 @@ services:
 #                link_local_ips:
 #                  - ${NETWORK_IP}
         depends_on:
-          - php
-        volumes_from:
-          - "php:ro"
+            mysql:
+                condition: service_healthy
+        volumes:
+          - assets:/srv/a
+          - assets:/srv/b
 
     php:
         extends:
             file: docker-common.yml
             service: php
-        image: "${CI_REGISTRY_IMAGE_WITH_TAG}"
-        expose:
-          - 9000
+        image: "${CI_APP_IMAGE_WITH_TAG}"
         networks:
           - nw_internal
         restart: always
-        depends_on:
-            mysql:
-                condition: service_healthy
         volumes:
-          - "/srv"
-          - "/composer/vendor"
+          - assets:/srv/a
+
+    spare:
+        extends:
+            file: docker-common.yml
+            service: php
+        image: "${CI_APP_IMAGE_WITH_TAG}"
+        networks:
+          - nw_internal
+        volumes:
+          - assets:/srv/b
 
     mysql:
         extends:
@@ -48,6 +50,7 @@ services:
 
 volumes:
     database:
+    assets:
 
 networks:
     nw_external:

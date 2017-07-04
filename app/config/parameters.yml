@@ -3,19 +3,32 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
 parameters:
     database_host: "%env(ENV_database_host)%"
+    env(ENV_database_host): "mysql"
     database_port: "%env(ENV_database_port)%"
+    env(ENV_database_port): "3306"
+    database_mysql_version: "%env(ENV_database_mysql_version)%"
+    env(ENV_database_mysql_version): "5.7"
 
     database_name: "%env(ENV_database_name)%"
+    env(ENV_database_name): project
     database_user: "%env(ENV_database_user)%"
+    env(ENV_database_user): project
     database_password: "%env(ENV_database_password)%"
+    env(ENV_database_password): project
     # You should uncomment this if you want to use pdo_sqlite
     #database_path: '%kernel.project_dir%/var/data/data.sqlite'
 
     mailer_transport: "%env(ENV_mailer_transport)%"
+    env(ENV_mailer_transport): smtp
     mailer_host: "%env(ENV_mailer_host)%"
+    env(ENV_mailer_host): 127.0.0.1
     mailer_user: "%env(ENV_mailer_user)%"
+    env(ENV_mailer_user): null
     mailer_password: "%env(ENV_mailer_password)%"
+    env(ENV_mailer_password): null
     mailer_from: "%env(ENV_mailer_from)%"
+    env(ENV_mailer_from): andrey@mindubaev.ru
 
     # A secret key that's used to generate certain security-related tokens
     secret: "%env(ENV_secret)%"
+    env(ENV_secret): ThisTokenIsNotSoSecretChangeIt

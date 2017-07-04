@@ -4,8 +4,9 @@
     <property name="symfony.console" value="bin/console" />
     <property name="symfony.env" value="dev" />
     <property name="symfony.var" value="${project.basedir}/var" />
+    <property name="deploy.assets.target" value="a" />
 
-    <target name="init" depends="composer-install,image-prepare,app-deploy">
+    <target name="init" depends="composer-install,app-deploy,database-deploy">
         <echo message="${phing.project.name} Init - OK" />
     </target>
 
@@ -21,11 +22,6 @@
         <exec executable="sync-vendor" passthru="true" />
 
         <echo message="${phing.project.name} ComposerInstall - OK" />
-    </target>
-
-    <target name="image-prepare">
-        <!-- do something before (and without) symfony console -->
-        <echo message="${phing.project.name} AppInit - OK" />
     </target>
 
     <target name="app-deploy">
@@ -44,10 +40,13 @@
 
         <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
-            <arg value="--symlink" />
             <arg value="web" />
         </SymfonyConsole>
 
+        <echo message="${phing.project.name} AppDeploy - OK" />
+    </target>
+
+    <target name="database-deploy">
         <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--force" />
@@ -64,6 +63,6 @@
             <arg value="--allow-no-migration" />
         </SymfonyConsole>
 
-        <echo message="${phing.project.name} AppUpdate - OK" />
+        <echo message="${phing.project.name} DatabaseDeploy - OK" />
     </target>
 </project>

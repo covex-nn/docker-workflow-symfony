@@ -3,15 +3,16 @@ Symfony для Docker
 
 __Symfony для Docker__ - это шаблон приложения для разработки с использованием [Docker][9] и [docker-compose][10]
 
+__Symfony для Docker__ - это набор процедур непрерывной интеграции/внедрения
+изменений через [GitLab CI/CD Pipelines][8] от локального окружения разработчика
+до production с практически нулевым deployment downtime.
+
 __Symfony для Docker__, дополнительно вместе с пакетами из [Symfony Standard Edition][1], включает в себя:
  
 * [FOSUserBundle][2]
 * [SonataAdminBundle][3]
 * Управление CSS и Javascript файлами используя [Webpack Encore][4] и [Yarn][5]
 * Базовый twig-шаблон с подключёнными [Bootstrap][6] и [Jquery][7] в `app/Resource/views/base.html.twig` 
-
-__Symfony для Docker__ - это набор процедур непрерывной интеграции/внедрения
-изменений через [GitLab CI/CD Pipelines][8] от локального окружения разработчика до production
 
 Вместе с __Symfony для Docker__ на разных этапах используются следующие образы Docker  
 
@@ -24,6 +25,8 @@ __Symfony для Docker__ - это набор процедур непрерыв�
 * [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
 
 * [covex/alpine-git:1.0][13] - Alpine Linux с установленнымb `bash`, `openssh-client` и `git`
+
+* [covex/mysql][15] - MySQL с проверкой HEALTHCHECK  
 
 * [covex/php7.1-fpm:1.0][12] 
 
@@ -52,3 +55,4 @@ __Symfony для Docker__ - это набор процедур непрерыв�
 [12]: https://hub.docker.com/r/covex/php7.1-fpm/
 [13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
+[15]: https://hub.docker.com/r/covex/mysql/

@@ -8,6 +8,7 @@ services:
             ENV_database_name: "${ENV_database_name}"
             ENV_database_user: "${ENV_database_user}"
             ENV_database_password: "${ENV_database_password}"
+            ENV_database_mysql_version: "${ENV_database_mysql_version}"
             ENV_mailer_transport: "${ENV_mailer_transport}"
             ENV_mailer_host: "${ENV_mailer_host}"
             ENV_mailer_user: "${ENV_mailer_user}"
@@ -16,8 +17,7 @@ services:
             ENV_secret: "${ENV_secret}"
 
     mysql:
-        build:
-            context: ./docker/mysql/
+        image: covex/mysql:5.7
         expose:
           - 3306
         environment:
