@@ -6,16 +6,16 @@ parameters:
     database_port: "%env(ENV_database_port)%"
 
     database_name: "%env(ENV_database_name)%"
-    database_user: "%env(ENV_database_user)"
-    database_password: "%env(ENV_database_password)"
+    database_user: "%env(ENV_database_user)%"
+    database_password: "%env(ENV_database_password)%"
     # You should uncomment this if you want to use pdo_sqlite
     #database_path: '%kernel.project_dir%/var/data/data.sqlite'
 
     mailer_transport: "%env(ENV_mailer_transport)%"
     mailer_host: "%env(ENV_mailer_host)%"
-    mailer_user: "%env(ENV_mailer_user)"
+    mailer_user: "%env(ENV_mailer_user)%"
     mailer_password: "%env(ENV_mailer_password)%"
     mailer_from: "%env(ENV_mailer_from)%"
 
     # A secret key that's used to generate certain security-related tokens
-    secret: "%env(ENV_secret)"
+    secret: "%env(ENV_secret)%"
