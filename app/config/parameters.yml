@@ -7,7 +7,7 @@ parameters:
     database_port: "%env(ENV_database_port)%"
     env(ENV_database_port): ~
     database_mysql_version: "%env(ENV_database_mysql_version)%"
-    env(ENV_database_mysql_version): ~
+    env(ENV_database_mysql_version): "5.7"
 
     database_name: "%env(ENV_database_name)%"
     env(ENV_database_name): ~
