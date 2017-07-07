@@ -4,18 +4,15 @@ services:
     nginx:
         build:
           context: ./docker/nginx/
-          args:
-            server_name: "${SERVER_NAME}"
-            app_php: "${APP_PHP}"
         ports:
-          - "${NGINX_PORTS}"
+          - "80:80"
         networks:
           - nw_internal
           - nw_external
         depends_on:
           - php
-        volumes_from:
-          - "php:ro"
+        volumes:
+          - ./web:/srv/web
 
     php:
         extends:
@@ -24,15 +21,14 @@ services:
         build:
             context: "."
             dockerfile: Dockerfile-dev
-        expose:
-          - 9000
         networks:
           - nw_internal
         depends_on:
-          - mysql
+            mysql:
+                condition: service_healthy
         volumes:
-          - ".:/srv"
-          - "/composer/vendor"
+          - .:/srv
+          - /composer/home
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
@@ -46,7 +42,8 @@ services:
           PMA_USER: "root"
           PMA_PASSWORD: "${ENV_database_root_password}"
         depends_on:
-          - mysql
+            mysql:
+                condition: service_healthy
         volumes:
           - /sessions
 
@@ -59,6 +56,7 @@ services:
 
 volumes:
     database:
+    assets:
 
 networks:
     nw_external:

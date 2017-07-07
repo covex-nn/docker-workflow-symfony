@@ -12,15 +12,15 @@ RUN composer config -g cache-dir ./var/cache/composer \
         --no-scripts \
         --no-autoloader \
         --no-dev \
-        --no-interaction
+        --no-interaction \
+    && composer clear-cache
 
 COPY . ./
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
     && chmod 755 docker/php/start.sh \
     && composer dump-autoload --optimize \
-    && composer clear-cache \
-    && phing image-prepare
+    && phing app-deploy -Dsymfony.env=prod
 
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]

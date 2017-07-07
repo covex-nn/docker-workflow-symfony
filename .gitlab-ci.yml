@@ -1,28 +1,65 @@
 image: docker:latest
 
 variables:
-    CI_REGISTRY_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
-    APP_PHP: "app"
-    NGINX_PORTS: "80"
+    CI_APP_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
 
 stages:
-  - lint
   - deps
   - test
   - build
   - deploy
 
+.template-suffix-vars: &suffix-vars
+    before_script:
+      - cat .env | grep ENV_ > .build-env
+      - sed -i 's/^/export /' .build-env
+      - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
+          echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
+        done
+      - cat .build-env
+
+.template-docker-nginx-image: &docker-nginx-image
+    stage: build
+    image: docker:latest
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg app_php=app ./docker/nginx
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_NGINX_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    dependencies:
+      - deps:php-composer
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.template-docker-app-image: &docker-app-image
+    stage: build
+    image: docker:latest
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --tag $CI_APP_IMAGE_WITH_TAG --no-cache=true .
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_APP_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    dependencies:
+      - deps:php-composer
+    tags:
+      - executor-docker
+      - docker-in-docker
+
 .template-docker-compose: &docker-compose
     stage: build
     image: covex/docker-compose:1.0
+    <<: *suffix-vars
     script:
-      - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
-          eval 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='$"$name"'';
-        done
+      - eval $(cat .build-env)
       - mkdir build
       - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
       - sed -i 's/\/builds\/'"$CI_PROJECT_NAMESPACE"'\/'"$CI_PROJECT_NAME"'/\./g' build/docker-compose.yml
-      - cp -R docker build
     artifacts:
         untracked: true
         name: "$CI_COMMIT_REF_NAME"
@@ -43,37 +80,29 @@ stages:
           mkdir -p '"$DEPLOY_DIRECTORY"'_tmp'
       - scp -P 22 -r build/* ''"$DEPLOY_USER"'@'"$DEPLOY_HOST"':'"$DEPLOY_DIRECTORY"'_tmp'
       - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
-          cd '"$DEPLOY_DIRECTORY"'_tmp ;
+          if [ -d '"$DEPLOY_DIRECTORY"' ]; then rm -rf '"$DEPLOY_DIRECTORY"'; fi ;
+          mv '"$DEPLOY_DIRECTORY"'_tmp '"$DEPLOY_DIRECTORY"' ;
+          cd '"$DEPLOY_DIRECTORY"' ;
           docker login -u gitlab-ci-token -p '"$CI_JOB_TOKEN"' '"$CI_REGISTRY"' ;
           docker-compose pull ;
-          if [ -d '"$DEPLOY_DIRECTORY"' ]; then cd '"$DEPLOY_DIRECTORY"' && docker-compose down --rmi local && rm -rf '"$DEPLOY_DIRECTORY"'; fi ;
-          cp -r '"$DEPLOY_DIRECTORY"'_tmp '"$DEPLOY_DIRECTORY"' ;
-          cd '"$DEPLOY_DIRECTORY"' ;
-          docker-compose up -d --remove-orphans ;
-          docker-compose exec -T php phing app-deploy -Dsymfony.env=prod ;
-          rm -rf '"$DEPLOY_DIRECTORY"'_tmp'
-    tags:
-      - executor-docker
-
-.template-docker-image: &build-image
-    stage: build
-    image: docker:latest
-    script:
-      - docker build -t $CI_REGISTRY_IMAGE_WITH_TAG --no-cache=true .
-      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker push $CI_REGISTRY_IMAGE_WITH_TAG
-      - docker logout $CI_REGISTRY
-    dependencies:
-      - deps:php-composer
-    tags:
-      - executor-docker
-      - docker-in-docker
-
-lint:docker-compose:
-    stage: lint
-    image: covex/docker-compose:1.0
-    script:
-      - docker-compose config --services
+          docker-compose up -d --no-recreate nginx php mysql ;
+          docker-compose up -d --force-recreate --no-deps spare ;
+          docker-compose exec -T spare sh -c "rm -rf /srv/b/* && cp -a /srv/web/. /srv/b/" ;
+          docker-compose exec -T nginx sh -c "nginx-upstream-spare.sh && nginx -s reload" ;
+          echo "[$(date -R)] web-server is down (1)" ;
+          docker-compose pause nginx ;
+          docker-compose exec -T php phing database-deploy -Dsymfony.env=prod ;
+          docker-compose exec -T php rm -rf /srv/a/* ;
+          docker-compose unpause nginx ;
+          echo "[$(date -R)] web-server is up (1)" ;
+          docker-compose up -d --force-recreate --no-deps php ;
+          docker-compose exec -T nginx sh -c "nginx-upstream-php.sh && nginx -s reload" ;
+          echo "[$(date -R)] web-server is down (2)" ;
+          docker-compose stop nginx ;
+          docker-compose up -d nginx ;
+          echo "[$(date -R)] web-server is up (2)" ;
+          docker-compose stop spare ;
+          docker-compose exec -T php cp -a /srv/web/. /srv/a/'
     tags:
       - executor-docker
 
@@ -96,24 +125,49 @@ deps:php-composer:
 test:phpunit:
     stage: test
     image: covex/php7.1-fpm:1.0
-    before_script:
+    <<: *suffix-vars
+    variables:
+        ENV_SUFFIX: "_TEST"
+    script:
+      - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - composer require phpunit/phpunit:* --dev
-    script:
       - phpunit
     dependencies: []
     tags:
       - executor-docker
 
-build:docker-image-master:
-    <<: *build-image
+build:docker-nginx-image-master:
+    <<: *docker-nginx-image
+    variables:
+        ENV_SUFFIX: "_MASTER"
     only:
       - master
     except:
       - tags
 
-build:docker-image-production:
-    <<: *build-image
+build:docker-nginx-image-production:
+    <<: *docker-nginx-image
+    variables:
+        ENV_SUFFIX: "_PRODUCTION"
+    only:
+      - /^release-.*$/
+    except:
+      - branches
+
+build:docker-app-image-master:
+    <<: *docker-app-image
+    variables:
+        ENV_SUFFIX: "_MASTER"
+    only:
+      - master
+    except:
+      - tags
+
+build:docker-app-image-production:
+    <<: *docker-app-image
+    variables:
+        ENV_SUFFIX: "_PRODUCTION"
     only:
       - /^release-.*$/
     except:

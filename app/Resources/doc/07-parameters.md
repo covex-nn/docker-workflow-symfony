@@ -32,7 +32,9 @@
     ```
     parameters:
         hwi_facebook_client_id: "%env(ENV_hwi_facebook_client_id)%"
+        env(ENV_hwi_facebook_client_id): 1234
         hwi_facebook_client_secret: "%env(ENV_hwi_facebook_client_secret)"
+        env(ENV_hwi_facebook_client_secret): 4567
     ```
 
 4. Перезапустить `docker-compose`
