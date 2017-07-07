@@ -4,10 +4,9 @@ WORKDIR /srv
 
 COPY composer.json ./
 COPY composer.lock ./
-COPY var/ ./var/
+COPY auth.json ./
 
-RUN composer config -g cache-dir ./var/cache/composer \
-    && composer install \
+RUN composer install \
         --prefer-dist \
         --no-scripts \
         --no-autoloader \
@@ -15,7 +14,7 @@ RUN composer config -g cache-dir ./var/cache/composer \
         --no-interaction \
     && composer clear-cache
 
-COPY . ./
+ADD . ./
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
     && chmod 755 docker/php/start.sh \

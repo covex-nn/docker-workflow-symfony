@@ -29,6 +29,7 @@ services:
         restart: always
         volumes:
           - assets:/srv/a
+          - assets:/srv/sessions
 
     spare:
         extends:
@@ -39,6 +40,7 @@ services:
           - nw_internal
         volumes:
           - assets:/srv/b
+          - assets:/srv/sessions
 
     mysql:
         extends:

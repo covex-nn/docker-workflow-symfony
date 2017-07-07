@@ -17,7 +17,6 @@ stages:
       - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
           echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
         done
-      - cat .build-env
 
 .template-docker-nginx-image: &docker-nginx-image
     stage: build
@@ -25,12 +24,11 @@ stages:
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg app_php=app ./docker/nginx
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_NGINX_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
-    dependencies:
-      - deps:php-composer
     tags:
       - executor-docker
       - docker-in-docker
@@ -41,7 +39,7 @@ stages:
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - docker build --tag $CI_APP_IMAGE_WITH_TAG --no-cache=true .
+      - docker build --tag $CI_APP_IMAGE_WITH_TAG .
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
