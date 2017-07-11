@@ -16,8 +16,9 @@ services:
             mysql:
                 condition: service_healthy
         volumes:
-          - assets:/srv/a
-          - assets:/srv/b
+          - "assets:/srv/a:ro"
+          - "assets:/srv/b:ro"
+          - "assets:/srv/storage:ro"
 
     php:
         extends:
@@ -28,8 +29,8 @@ services:
           - nw_internal
         restart: always
         volumes:
-          - assets:/srv/a
-          - assets:/srv/sessions
+          - "assets:/srv/a:rw"
+          - "assets:/srv/storage:rw"
 
     spare:
         extends:
@@ -39,8 +40,8 @@ services:
         networks:
           - nw_internal
         volumes:
-          - assets:/srv/b
-          - assets:/srv/sessions
+          - "assets:/srv/b:rw"
+          - "assets:/srv/storage:rw"
 
     mysql:
         extends:

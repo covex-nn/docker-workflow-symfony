@@ -13,6 +13,7 @@ services:
           - php
         volumes:
           - ./web:/srv/web
+          - ./storage/upload:/srv/storage/upload
 
     php:
         extends:

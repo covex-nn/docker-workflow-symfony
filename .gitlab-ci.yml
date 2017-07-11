@@ -89,7 +89,7 @@ stages:
           docker-compose exec -T nginx sh -c "nginx-upstream-spare.sh && nginx -s reload" ;
           echo "[$(date -R)] web-server is down (1)" ;
           docker-compose pause nginx ;
-          docker-compose exec -T php phing database-deploy -Dsymfony.env=prod ;
+          docker-compose exec -T php phing database-deploy storage-deploy -Dsymfony.env=prod ;
           docker-compose exec -T php rm -rf /srv/a/* ;
           docker-compose unpause nginx ;
           echo "[$(date -R)] web-server is up (1)" ;
