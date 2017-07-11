@@ -5,7 +5,7 @@
     <property name="symfony.env" value="dev" />
     <property name="project.storage.dir" value="${project.basedir}/storage" />
 
-    <target name="init" depends="composer-install,app-deploy,database-deploy,storage-deploy">
+    <target name="init" depends="composer-install,app-deploy,database-deploy,storage-prepare">
         <echo message="${phing.project.name} Init - OK" />
     </target>
 
@@ -23,11 +23,22 @@
         <echo message="${phing.project.name} ComposerInstall - OK" />
     </target>
 
-    <target name="app-deploy">
+    <target name="app-deploy" depends="composer-post-install,cache-warmup">
+        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="web" />
+        </SymfonyConsole>
+
+        <echo message="${phing.project.name} AppDeploy - OK" />
+    </target>
+
+    <target name="composer-post-install">
         <composer composer="${composer.path}" command="run-script">
             <arg value="post-install-cmd" />
         </composer>
+    </target>
 
+    <target name="cache-warmup">
         <SymfonyConsole console="${symfony.console}" command="cache:clear" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--no-warmup" />
@@ -36,13 +47,6 @@
         <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
-
-        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
-            <arg name="env" value="${symfony.env}" />
-            <arg value="web" />
-        </SymfonyConsole>
-
-        <echo message="${phing.project.name} AppDeploy - OK" />
     </target>
 
     <target name="database-deploy">
@@ -65,7 +69,7 @@
         <echo message="${phing.project.name} DatabaseDeploy - OK" />
     </target>
 
-    <target name="storage-deploy">
+    <target name="storage-prepare">
         <mkdir dir="${project.storage.dir}/upload" />
         <chown file="${project.storage.dir}/upload" user="www-data" group="www-data" failonerror="false" />
 
