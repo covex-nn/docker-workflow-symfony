@@ -83,24 +83,17 @@ stages:
           cd '"$DEPLOY_DIRECTORY"' ;
           docker login -u gitlab-ci-token -p '"$CI_JOB_TOKEN"' '"$CI_REGISTRY"' ;
           docker-compose pull ;
-          docker-compose up -d --no-recreate nginx php mysql ;
+          docker-compose up -d --no-recreate ;
           docker-compose up -d --force-recreate --no-deps spare ;
-          docker-compose exec -T spare sh -c "rm -rf /srv/b/* && cp -a /srv/web/. /srv/b/" ;
-          docker-compose exec -T nginx sh -c "nginx-upstream-spare.sh && nginx -s reload" ;
-          echo "[$(date -R)] web-server is down (1)" ;
-          docker-compose pause nginx ;
-          docker-compose exec -T php phing database-deploy storage-deploy -Dsymfony.env=prod ;
-          docker-compose exec -T php rm -rf /srv/a/* ;
-          docker-compose unpause nginx ;
-          echo "[$(date -R)] web-server is up (1)" ;
-          docker-compose up -d --force-recreate --no-deps php ;
-          docker-compose exec -T nginx sh -c "nginx-upstream-php.sh && nginx -s reload" ;
-          echo "[$(date -R)] web-server is down (2)" ;
+          docker-compose exec -T spare sh -c "cd /srv && rm -rf b/* && cp -a web/. b/ && rm -rf a/* && cp -a web/. a/" ;
+          docker-compose exec -T spare phing storage-prepare database-deploy ;
+          docker-compose up -d --force-recreate --no-deps php'
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          cd '"$DEPLOY_DIRECTORY"' ;
+          echo "[$(date -R)] web-server is down" ;
           docker-compose stop nginx ;
           docker-compose up -d nginx ;
-          echo "[$(date -R)] web-server is up (2)" ;
-          docker-compose stop spare ;
-          docker-compose exec -T php cp -a /srv/web/. /srv/a/'
+          echo "[$(date -R)] web-server is up"'
     tags:
       - executor-docker
 

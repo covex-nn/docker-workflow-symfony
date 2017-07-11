@@ -10,7 +10,6 @@ RUN composer install \
         --prefer-dist \
         --no-scripts \
         --no-autoloader \
-        --no-dev \
         --no-interaction \
     && composer clear-cache
 

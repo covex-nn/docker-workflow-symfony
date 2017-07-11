@@ -30,18 +30,11 @@ services:
         restart: always
         volumes:
           - "assets:/srv/a:rw"
+          - "assets:/srv/b:rw"
           - "assets:/srv/storage:rw"
 
     spare:
-        extends:
-            file: docker-common.yml
-            service: php
-        image: "${CI_APP_IMAGE_WITH_TAG}"
-        networks:
-          - nw_internal
-        volumes:
-          - "assets:/srv/b:rw"
-          - "assets:/srv/storage:rw"
+        extends: php
 
     mysql:
         extends:
