@@ -5,6 +5,7 @@
 /build/
 /node_modules
 /phpunit.xml
+/storage
 /var/*
 !/var/cache
 /var/cache/*
