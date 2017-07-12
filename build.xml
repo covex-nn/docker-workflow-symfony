@@ -23,22 +23,11 @@
         <echo message="${phing.project.name} ComposerInstall - OK" />
     </target>
 
-    <target name="app-deploy" depends="composer-post-install,cache-warmup">
-        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
-            <arg name="env" value="${symfony.env}" />
-            <arg value="web" />
-        </SymfonyConsole>
-
-        <echo message="${phing.project.name} AppDeploy - OK" />
-    </target>
-
-    <target name="composer-post-install">
+    <target name="app-deploy">
         <composer composer="${composer.path}" command="run-script">
             <arg value="post-install-cmd" />
         </composer>
-    </target>
 
-    <target name="cache-warmup">
         <SymfonyConsole console="${symfony.console}" command="cache:clear" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--no-warmup" />
@@ -47,6 +36,13 @@
         <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
         </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="web" />
+        </SymfonyConsole>
+
+        <echo message="${phing.project.name} AppDeploy - OK" />
     </target>
 
     <target name="database-deploy">
