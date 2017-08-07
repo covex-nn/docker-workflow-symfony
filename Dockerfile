@@ -18,7 +18,8 @@ RUN chmod -R -x+X . \
     && chmod 755 bin/console \
     && chmod 755 docker/php/start.sh \
     && composer dump-autoload --optimize \
-    && phing app-deploy -Dsymfony.env=prod
-
+    && phing app-deploy -Dsymfony.env=prod \
+    && cat docker/php/app.crontab > /etc/crontabs/root
+    
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]
