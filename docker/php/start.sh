@@ -8,5 +8,6 @@ fi
 
 setfacl -R -m u:"www-data":rwX -m u:`whoami`:rwX /srv/var
 setfacl -dR -m u:"www-data":rwX -m u:`whoami`:rwX /srv/var
+crond -b
 
 exec "$@"
