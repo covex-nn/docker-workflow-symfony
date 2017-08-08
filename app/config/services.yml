@@ -33,3 +33,19 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+
+    app.repository.factory:
+        class: Doctrine\ORM\Repository\DefaultRepositoryFactory
+
+    AppBundle\Admin\UserAdmin:
+        arguments: [ ~, AppBundle\Entity\User, ~ ]
+        public: true
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
+        calls:
+            - [ 'setTranslationDomain', [ 'AppBundleAdmin'] ]
+
+    AppBundle\Repository\UserRepository:
+        factory: [ "@app.repository.factory", "getRepository" ]
+        arguments:
+            $entityName: "AppBundle:User"
