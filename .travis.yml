@@ -33,11 +33,10 @@ before_script:
 
 script:
   - SERVICES=(nginx mysql php spare)
-  - PORTS=("0.0.0.0:32768->80/tcp" "3306/tcp" "9000/tcp" "9000/tcp")
   - for (( i=0; i<${#SERVICES[@]}; i++ )) do
         ID=$(docker-compose ps -q ${SERVICES[$i]});
         PORT=$(docker ps --filter id=$ID --filter status=running --format "{{.Ports}}");
-        if [ ! $PORT ] || [ $PORT != ${PORTS[$i]} ]; then
+        if [ ! $PORT ]; then
             docker-compose logs ${SERVICES[$i]};
             exit 1;
         fi
