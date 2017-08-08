@@ -24,10 +24,6 @@
     </target>
 
     <target name="app-deploy">
-        <composer composer="${composer.path}" command="run-script">
-            <arg value="post-install-cmd" />
-        </composer>
-
         <SymfonyConsole console="${symfony.console}" command="cache:clear" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--no-warmup" />
