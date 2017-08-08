@@ -2,6 +2,8 @@
 # Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
 # https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
 parameters:
+    locale: "%env(ENV_locale)%"
+    env(ENV_locale): ru
     database_host: "%env(ENV_database_host)%"
     env(ENV_database_host): ~
     database_port: "%env(ENV_database_port)%"
