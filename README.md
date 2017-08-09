@@ -37,6 +37,8 @@ __Symfony для Docker__, дополнительно вместе с пакет
     
     Установлен и настроен `composer`. Папка `vendor` находится внутри контейнера и не оказывает влияние на быстродействие в локальном окружении разработчика
 
+    Установлен [dcron][16] для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab` 
+
     Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
 Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [app/Resources/doc](app/Resources/doc)
@@ -56,3 +58,4 @@ __Symfony для Docker__, дополнительно вместе с пакет
 [13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
 [15]: https://hub.docker.com/r/covex/mysql/
+[16]: http://www.jimpryor.net/linux/dcron.html

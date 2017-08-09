@@ -18,7 +18,7 @@
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-migrations-bundle": "^1.0",
         "doctrine/orm": "^2.5",
-        "friendsofsymfony/user-bundle": "2.0.1",
+        "friendsofsymfony/user-bundle": "^2.0.1",
         "sensio/distribution-bundle": "^5.0.19",
         "sensio/framework-extra-bundle": "^3.0.2",
         "sonata-project/admin-bundle": "^3.0",
@@ -46,7 +46,6 @@
         "symfony-var-dir": "var",
         "symfony-web-dir": "web",
         "symfony-tests-dir": "tests",
-        "symfony-assets-install": "relative",
         "branch-alias": {
             "dev-master": "3.3-dev"
         }
