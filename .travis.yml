@@ -19,17 +19,22 @@ env:
 
 before_install:
   - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > auth.json
+  - mkdir build
 
 install:
   - docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24
   - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=docker.local --build-arg server_upstream=prod --build-arg app_php=app ./docker/nginx
   - docker build --tag $CI_APP_IMAGE_WITH_TAG .
+  - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
 
 before_script:
-  - mkdir build
-  - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
   - cd build
   - docker-compose up -d
+  - docker-compose up -d --force-recreate --no-deps spare
+  - docker-compose exec -T spare phing storage-prepare database-deploy
+  - docker-compose up -d --force-recreate --no-deps php
+  - docker-compose stop nginx
+  - docker-compose up -d nginx
 
 script:
   - SERVICES=(nginx mysql php spare)
@@ -37,7 +42,6 @@ script:
         ID=$(docker-compose ps -q ${SERVICES[$i]});
         PORT=$(docker ps --filter id=$ID --filter status=running --format "{{.Ports}}");
         if [ ! $PORT ]; then
-            docker-compose logs ${SERVICES[$i]};
             exit 1;
         fi
     done
@@ -45,3 +49,8 @@ script:
 after_success:
   - docker-compose images
   - docker-compose ps
+  - docker-compose logs
+
+after_failure:
+  - docker-compose ps
+  - docker-compose logs
