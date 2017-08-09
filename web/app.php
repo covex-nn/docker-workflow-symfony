@@ -10,6 +10,9 @@ $kernel = new AppKernel('prod', false);
 // When using the HttpCache, you need to call the method in your front controller instead of relying on the configuration parameter
 //Request::enableHttpMethodParameterOverride();
 $request = Request::createFromGlobals();
+if ($request->server->get("HTTP_X_FORWARDED_PROTO", "http") == "https") {
+    $request->server->set('HTTPS', 'on');
+}
 $response = $kernel->handle($request);
 $response->send();
 $kernel->terminate($request, $response);
