@@ -12,5 +12,11 @@ web_profiler:
     toolbar: false
     intercept_redirects: false
 
+monolog:
+    handlers:
+        main:
+            type: syslog
+            level: error
+
 swiftmailer:
     disable_delivery: true
