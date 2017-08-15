@@ -68,11 +68,11 @@ stages:
 .template-secure-copy: &secure-copy
     stage: deploy
     image: covex/alpine-git:1.0
-    <<: *suffix-vars
-    script:
-      - eval $(cat .build-env)
+    before_script:
       - eval $(ssh-agent -s)
       - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    script:
+      - eval $(cat .build-env)
       - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
           rm -rf '"$DEPLOY_DIRECTORY"'_tmp ;
           mkdir -p '"$DEPLOY_DIRECTORY"'_tmp'
@@ -175,8 +175,6 @@ build:docker-compose-production:
       - branches
 
 deploy:secure-copy-master:
-    variables:
-        ENV_SUFFIX: "_MASTER"
     <<: *secure-copy
     only:
       - master
@@ -188,8 +186,6 @@ deploy:secure-copy-master:
       - build:docker-compose-master
 
 deploy:secure-copy-production:
-    variables:
-        ENV_SUFFIX: "_PRODUCTION"
     <<: *secure-copy
     only:
       - /^release-.*$/
