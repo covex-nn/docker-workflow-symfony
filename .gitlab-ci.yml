@@ -24,7 +24,6 @@ stages:
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod --build-arg app_php=app ./docker/nginx
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_NGINX_IMAGE_WITH_TAG
@@ -39,12 +38,11 @@ stages:
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker build --tag $CI_APP_IMAGE_WITH_TAG .
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
-    dependencies:
-      - deps:php-composer
     tags:
       - executor-docker
       - docker-in-docker
@@ -65,14 +63,16 @@ stages:
           - build/
     tags:
       - executor-docker
+    dependencies: []
 
 .template-secure-copy: &secure-copy
     stage: deploy
     image: covex/alpine-git:1.0
-    before_script:
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
       - eval $(ssh-agent -s)
       - ssh-add <(echo "$SSH_PRIVATE_KEY")
-    script:
       - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
           rm -rf '"$DEPLOY_DIRECTORY"'_tmp ;
           mkdir -p '"$DEPLOY_DIRECTORY"'_tmp'
@@ -100,16 +100,9 @@ stages:
 deps:php-composer:
     stage: deps
     image: covex/php7.1-fpm:1.0
-    before_script:
-      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - composer install --prefer-dist --no-scripts --no-autoloader --no-dev --no-interaction
     script:
-      - cp -f -r /composer/home/cache ./var/cache/composer
-    artifacts:
-        untracked: true
-        name: "$CI_COMMIT_REF_NAME"
-        paths:
-          - var/cache/composer/
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+      - composer install --prefer-dist --no-scripts --no-autoloader --no-interaction
     tags:
       - executor-docker
 
@@ -124,7 +117,6 @@ test:phpunit:
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - composer require phpunit/phpunit:* --dev
       - phpunit
-    dependencies: []
     tags:
       - executor-docker
 
@@ -172,7 +164,6 @@ build:docker-compose-master:
       - master
     except:
       - tags
-    dependencies: []
 
 build:docker-compose-production:
     <<: *docker-compose
@@ -182,13 +173,10 @@ build:docker-compose-production:
       - /^release-.*$/
     except:
       - branches
-    dependencies: []
 
 deploy:secure-copy-master:
     variables:
-        DEPLOY_USER: "${DEPLOY_USER_MASTER}"
-        DEPLOY_HOST: "${DEPLOY_HOST_MASTER}"
-        DEPLOY_DIRECTORY: "${DEPLOY_DIRECTORY_MASTER}"
+        ENV_SUFFIX: "_MASTER"
     <<: *secure-copy
     only:
       - master
@@ -201,9 +189,7 @@ deploy:secure-copy-master:
 
 deploy:secure-copy-production:
     variables:
-        DEPLOY_USER: "${DEPLOY_USER_PRODUCTION}"
-        DEPLOY_HOST: "${DEPLOY_HOST_PRODUCTION}"
-        DEPLOY_DIRECTORY: "${DEPLOY_DIRECTORY_PRODUCTION}"
+        ENV_SUFFIX: "_PRODUCTION"
     <<: *secure-copy
     only:
       - /^release-.*$/
