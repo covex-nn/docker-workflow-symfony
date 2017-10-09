@@ -16,6 +16,8 @@
             <arg value="/srv/var/cache/composer" />
         </composer>
 
+        <composer composer="${composer.path}" command="install" />
+
         <mkdir dir="${project.basedir}/.sync" />
         <chmod file="${project.basedir}/.sync" mode="0744" />
 
