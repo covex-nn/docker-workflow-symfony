@@ -5,10 +5,6 @@ services:
 
 language: bash
 
-branches:
-    only:
-      - master
-
 env:
     global:
       - secure: "bVSEkJFCQ4xuL4Lxs7CS78Pfj9EeFkgDAd39m/8RRSg2WoPQ9ghQTLLsJ18xN9agGkGL30VeDxZT2txxcrx2JD2NIkA/sAQxLKM5aW8VVrhO4pRpswipK2ffhl6GrHzj2MzxU18R3txRnOu5xrkV4pLMVhqGverM8PgTfXdONPvU6mD9MB0xO5wi7LiVB0+Yx3Mav7VolWvjsGW1SolB7Ib/aGUOhd7E/uSzTNP/u8w/ZUt1yDVw1ZnHPPHTXaDdlv7KF1BA4+ugmTF9Jc4DJ0GYi/kV5wEG7nTP3sMSeq4F2UxT2rX3v93Hin2XNHE417VyEb79D5zQ8vBWOa9hky3kxDNqCGM37xJhv4RsSGHtukZYxEroMHJ22bHxM38DVvkhQ3qp6r4P46pXx9FFirfph+x2PJxOSsRCiQ5+/I/ke9ZQSzsx1PgXnn2645nWfcJymEa5ojg1K1o2eQSXgl5fIZ3bYTktEQrxK3L40TYnBeYIcTEmbT4NUp4G6Yft6YPTCSbgS8sf7e3lfMBY9a9YZtUY1sLgj8oMQnmfw58P4zO9PFVrODvOpZ1CBGSMJQ6HI9ULSNZ3sC0PwZDOqx4CAOHcwBNzyXx97rQi1f3J4rqI0aqmArpBosuXKsyyU2J1dO479L/JJZ7/A97XjIKUBcwBxo/CJHj9JOV9NEg="
@@ -29,6 +25,9 @@ install:
   - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
 
 before_script:
+  - docker-compose up -d
+  - docker-compose exec -T php phing
+  - docker-compose down -v --rmi local
   - cd build
   - docker-compose up -d
   - docker-compose up -d --force-recreate --no-deps spare

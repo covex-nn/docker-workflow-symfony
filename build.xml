@@ -15,9 +15,7 @@
             <arg value="cache-dir" />
             <arg value="/srv/var/cache/composer" />
         </composer>
-        <composer composer="${composer.path}" command="install">
-            <arg value="--no-scripts" />
-        </composer>
+        <composer composer="${composer.path}" command="install" />
         <exec executable="sync-vendor" passthru="true" />
 
         <echo message="${phing.project.name} ComposerInstall - OK" />
