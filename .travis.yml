@@ -15,7 +15,9 @@ env:
       - NETWORK_NAME=graynetwork
 
 before_install:
-  - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > auth.json
+  - if [ $COMPOSER_GITHUB_TOKEN ]; then
+        echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > auth.json;
+    fi
   - mkdir build
 
 install:

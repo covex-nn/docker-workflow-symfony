@@ -30,6 +30,17 @@
     ```
     
     Здесь нужно создать 5 переменных от `DOCKER_TLS_VERIFY` до `COMPOSE_CONVERT_WINDOWS_PATHS`
+    
+    Для macOS нужно дополнительно настроить машину, чтобы она корректно работала с NFS разделами.
+    Дело в том, что [при использовании docker-machine на macOS появляется проблема с доступами к файлам][6]: 
+    владелец и права на файлы не меняются на примонтированных nfs томах.
+    
+    Один из способов решения - использовать [docker-machine-nfs][5]:
+    
+    ```
+    brew install docker-machine-nfs
+    docker-machine-nfs default
+    ```
       
 4. Добавить запись в файл `C:\WINDOWS\System32\Drivers\etc\hosts`
 
@@ -77,3 +88,5 @@
 [2]: http://symfony.com/doc/current/frontend/encore/installation.html
 [3]: https://nodejs.org/en/download/
 [4]: https://yarnpkg.com/en/
+[5]: https://github.com/adlogix/docker-machine-nfs
+[6]: https://github.com/boot2docker/boot2docker/issues/581
