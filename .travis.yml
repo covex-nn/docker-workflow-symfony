@@ -17,6 +17,8 @@ env:
 before_install:
   - if [ $COMPOSER_GITHUB_TOKEN ]; then
         echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > auth.json;
+    else
+        echo '{ }' > auth.json;
     fi
   - mkdir build
 
