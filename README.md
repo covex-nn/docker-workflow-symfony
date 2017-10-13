@@ -18,8 +18,6 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
 * `nginx:alpine`
 
-* `mysql:5.7`
-
 * `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
 
 * [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
