@@ -10,8 +10,6 @@ services:
             nw_internal:
             nw_external:
                 ipv4_address: ${NETWORK_IP}
-#                link_local_ips:
-#                  - ${NETWORK_IP}
         depends_on:
             mysql:
                 condition: service_healthy
@@ -19,6 +17,8 @@ services:
           - "assets:/srv/a:ro"
           - "assets:/srv/b:ro"
           - "assets:/srv/storage:ro"
+        labels:
+            docker-gen.host: ${SERVER_NAME}
 
     php:
         extends:
