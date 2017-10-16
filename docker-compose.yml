@@ -8,7 +8,6 @@ services:
           - "80:80"
         networks:
           - nw_internal
-          - nw_external
         depends_on:
           - php
         volumes:
@@ -60,5 +59,4 @@ volumes:
     assets:
 
 networks:
-    nw_external:
     nw_internal:

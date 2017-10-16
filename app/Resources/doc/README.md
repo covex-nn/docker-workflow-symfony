@@ -22,6 +22,7 @@
 3. [Настройка доступа](03-access.md)
 4. [Создание репозитория](04-repository.md)
 5. [Настройка Nginx на серверах с Docker](05-nginx.md)
+    * [Настройка Nginx с использованием `jwilder/docker-gen`](05-nginx-dockergen.md)
 6. [Процесс разработки](06-workflow.md)
 7. [Настройка параметров Symfony](07-parameters.md)
 8. [Управление файлам CSS и Javascript](08-frontend.md)
