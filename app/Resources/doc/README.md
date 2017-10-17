@@ -26,6 +26,7 @@
 6. [Процесс разработки](06-workflow.md)
 7. [Настройка параметров Symfony](07-parameters.md)
 8. [Управление файлам CSS и Javascript](08-frontend.md)
+9. [Импорт приложения Symfony](99-legacy-code.md)
 
 [1]: https://www.docker.com/products/docker-toolbox
 [2]: https://www.virtualbox.org/
