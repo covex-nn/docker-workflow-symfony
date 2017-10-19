@@ -14,9 +14,9 @@ services:
             mysql:
                 condition: service_healthy
         volumes:
-          - "assets:/srv/a:ro"
-          - "assets:/srv/b:ro"
-          - "assets:/srv/storage:ro"
+          - "assetsWebA:/srv/a:ro"
+          - "assetsWebB:/srv/b:ro"
+          - "assetsStorage:/srv/storage:ro"
         labels:
             docker-gen.host: ${SERVER_NAME}
 
@@ -29,9 +29,9 @@ services:
           - nw_internal
         restart: always
         volumes:
-          - "assets:/srv/a:rw"
-          - "assets:/srv/b:rw"
-          - "assets:/srv/storage:rw"
+          - "assetsWebA:/srv/a:rw"
+          - "assetsWebB:/srv/b:rw"
+          - "assetsStorage:/srv/storage:rw"
 
     spare:
         extends: php
@@ -46,7 +46,9 @@ services:
 
 volumes:
     database:
-    assets:
+    assetsWebA:
+    assetsWebB:
+    assetsStorage:
 
 networks:
     nw_external:
