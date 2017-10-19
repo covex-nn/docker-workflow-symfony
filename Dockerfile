@@ -11,7 +11,7 @@ RUN composer install \
         --no-scripts \
         --no-autoloader \
         --no-interaction \
-    && composer clear-cache
+    && rm -rf $COMPOSER_HOME/cache/*
 
 ADD . ./
 RUN chmod -R -x+X . \
