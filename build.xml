@@ -33,7 +33,7 @@
 
         <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
-            <arg value="web" />
+            <arg value="public" />
         </SymfonyConsole>
 
         <echo message="${phing.project.name} AppDeploy - OK" />

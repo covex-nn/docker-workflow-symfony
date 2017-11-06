@@ -11,7 +11,7 @@ services:
         depends_on:
           - php
         volumes:
-          - ./web:/srv/web
+          - ./public:/srv/public
           - ./storage/upload:/srv/storage/upload
 
     php:

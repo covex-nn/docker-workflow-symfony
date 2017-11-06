@@ -1,0 +1,119 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: "%env(ENV_locale)%"
+    env(ENV_locale): ru
+
+    env(APP_SECRET): "%env(ENV_secret)%"
+    env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
+
+    env(DATABASE_URL): "mysql://%env(ENV_database_user)%:%env(ENV_database_password)%@%env(ENV_database_host)%:%env(ENV_database_port)%/%env(ENV_database_name)%?charset=UTF8&serverVersion=%env(ENV_database_mysql_version)%"
+    env(ENV_database_host): mysql
+    env(ENV_database_port): 3306
+    env(ENV_database_name): project
+    env(ENV_database_user): project
+    env(ENV_database_password): project
+    env(ENV_database_mysql_version): "5.7"
+
+    env(MAILER_URL): null://localhost
+    env(MAILER_FROM_ADDRESS): "No-reply"
+    env(MAILER_FROM_NAME): "no-reply@docker.local"
+
+# https://symfony.com/doc/current/bundles/FOSUserBundle/configuration_reference.html
+fos_user:
+    db_driver: orm
+    firewall_name: main
+    user_class: App\Entity\User
+    from_email:
+        address: "%env(MAILER_FROM_ADDRESS)%"
+        sender_name: "%env(MAILER_FROM_NAME)%"
+
+framework:
+    csrf_protection: ~
+    session:
+        handler_id: session.handler.native_file
+        save_path: '/srv/storage/sessions'
+    templating:
+        engines: ['twig']
+    validation:
+        enable_annotations: true
+
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            pattern: ^/
+            form_login:
+                provider: fos_userbundle
+                csrf_token_generator: security.csrf.token_manager
+            logout:       true
+            anonymous:    true
+    access_control:
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+
+twig:
+    form_themes:
+        - 'bootstrap_3_layout.html.twig'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        # automatically injects dependencies in your services
+        autowire: true
+        # automatically registers your services as commands, event subscribers, etc.
+        autoconfigure: true
+        # this means you cannot fetch services directly from the container via $container->get()
+        # if you need to do this, you can override this setting on individual services
+        public: false
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        # you can exclude directories or files
+        # but if a service is unused, it's removed anyway
+        exclude: '../src/{Entity,Migrations,Repository,Tests}'
+
+    # controllers are imported separately to make sure they
+    # have the tag that allows actions to type-hint services
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    app.repository.factory:
+        class: Doctrine\ORM\Repository\DefaultRepositoryFactory
+
+    App\Admin\UserAdmin:
+        arguments: [ ~, App\Entity\User, ~ ]
+        public: true
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
+        calls:
+            - [ 'setTranslationDomain', [ 'AppAdmin'] ]
+
+    App\Repository\UserRepository:
+        factory: [ "@app.repository.factory", "getRepository" ]
+        arguments:
+            $entityName: "AppBundle:User"
+
+    FOS\UserBundle\Model\UserManagerInterface: "@fos_user.user_manager.default"

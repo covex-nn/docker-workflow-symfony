@@ -1,5 +1,6 @@
 FROM covex/php7.1-fpm:1.0
 
+ENV APP_ENV=prod
 WORKDIR /srv
 
 COPY composer.json ./
