@@ -54,7 +54,7 @@ stages:
     script:
       - eval $(cat .build-env)
       - mkdir build
-      - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
+      - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml config > build/docker-compose.yml
       - sed -i 's/\/builds\/'"$CI_PROJECT_NAMESPACE"'\/'"$CI_PROJECT_NAME"'/\./g' build/docker-compose.yml
     artifacts:
         untracked: true
