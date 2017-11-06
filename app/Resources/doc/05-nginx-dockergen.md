@@ -6,7 +6,7 @@
 
 Перед использованием `docker-gen` нужно внести изменения в код проекта:
 
-* Убрать все упоминания подсети `nw_external` в файле `docker-compose-deploy.yml`
+* Убрать все упоминания подсети `nw_external` в файле `docker-compose.deploy.yml`
 * Убрать все переменные вида `NETWORK_NAME_*` и `NETWORK_IP_*` из конфигурации проекта в GitLab 
 
 Тогда метка `docker-gen.host` сервиса `nginx` будет использоваться `docker-gen` для генерации конфигурации по шаблону 

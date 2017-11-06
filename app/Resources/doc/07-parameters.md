@@ -13,19 +13,7 @@
     ENV_hwi_facebook_client_secret=4567
     ```
 
-2. Добавить информацию о переменной в файл `docker-common.yml`
-
-    Так значения переменных попадают в окружение контейнера `php`
-
-    ```
-    services:
-        php:
-            environment:
-                ENV_hwi_facebook_client_id: "${ENV_hwi_facebook_client_id}"
-                ENV_hwi_facebook_client_secret: "${ENV_hwi_facebook_client_secret}"
-    ```
-
-3. Добавить параметр в файл `app/config/parameters.yml`
+2. Добавить параметр в файл `app/config/parameters.yml`
 
     Файл `app/config/parameters.yml` является часть приложения
 
@@ -37,7 +25,7 @@
         env(ENV_hwi_facebook_client_secret): ~
     ```
 
-4. Перезапустить `docker-compose`
+3. Перезапустить `docker-compose`
 
     ```
     docker-compose stop

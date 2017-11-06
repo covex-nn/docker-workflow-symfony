@@ -1,62 +1,17 @@
-version: "2.1"
+version: '2.1'
 
 services:
-    nginx:
-        build:
-          context: ./docker/nginx/
-        ports:
-          - "80:80"
-        networks:
-          - nw_internal
-        depends_on:
-          - php
-        volumes:
-          - ./web:/srv/web
-          - ./storage/upload:/srv/storage/upload
-
-    php:
-        extends:
-            file: docker-common.yml
-            service: php
-        build:
-            context: "."
-            dockerfile: Dockerfile-dev
-        networks:
-          - nw_internal
-        depends_on:
-            mysql:
-                condition: service_healthy
-        volumes:
-          - .:/srv
-          - /composer/home
-
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        ports:
-          - 8080:80
-        networks:
-          - nw_internal
-        environment:
-          PMA_ARBITRARY: "1"
-          PMA_HOST: "mysql"
-          PMA_USER: "root"
-          PMA_PASSWORD: "${ENV_database_root_password}"
-        depends_on:
-            mysql:
-                condition: service_healthy
-        volumes:
-          - /sessions
-
     mysql:
-        extends:
-            file: docker-common.yml
-            service: mysql
-        networks:
-          - nw_internal
+        image: covex/mysql:5.7
+        expose:
+          - 3306
+        environment:
+            MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
+            MYSQL_DATABASE: "${ENV_database_name}"
+            MYSQL_USER: "${ENV_database_user}"
+            MYSQL_PASSWORD: "${ENV_database_password}"
+        volumes:
+          - database:/var/lib/mysql
 
 volumes:
     database:
-    assets:
-
-networks:
-    nw_internal:

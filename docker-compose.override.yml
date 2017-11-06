@@ -1,0 +1,56 @@
+version: '2.1'
+
+services:
+    nginx:
+        build:
+          context: ./docker/nginx/
+        ports:
+          - "80:80"
+        networks:
+          - nw_internal
+        depends_on:
+          - php
+        volumes:
+          - ./web:/srv/web
+          - ./storage/upload:/srv/storage/upload
+
+    php:
+        build:
+            context: "."
+            dockerfile: Dockerfile-dev
+        networks:
+          - nw_internal
+        env_file: .env
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+          - .:/srv
+          - /composer/home
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+          - 8080:80
+        networks:
+          - nw_internal
+        environment:
+          PMA_ARBITRARY: "1"
+          PMA_HOST: "mysql"
+          PMA_USER: "root"
+          PMA_PASSWORD: "${ENV_database_root_password}"
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+          - /sessions
+
+    mysql:
+        networks:
+          - nw_internal
+
+volumes:
+    assets:
+
+networks:
+    nw_internal:

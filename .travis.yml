@@ -26,7 +26,7 @@ install:
   - docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24
   - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod --build-arg app_php=app ./docker/nginx
   - docker build --tag $CI_APP_IMAGE_WITH_TAG .
-  - docker-compose -f docker-compose-deploy.yml config > build/docker-compose.yml
+  - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml config > build/docker-compose.yml
 
 before_script:
   - docker-compose up -d

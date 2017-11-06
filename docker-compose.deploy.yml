@@ -1,11 +1,10 @@
-version: "2.1"
+version: '2.1'
 
 services:
     nginx:
         image: "${CI_NGINX_IMAGE_WITH_TAG}"
         ports:
           - "80"
-        restart: always
         networks:
             nw_internal:
             nw_external:
@@ -17,35 +16,30 @@ services:
           - "assetsWebA:/srv/a:ro"
           - "assetsWebB:/srv/b:ro"
           - "assetsStorage:/srv/storage:ro"
+        restart: always
         labels:
             docker-gen.host: ${SERVER_NAME}
 
-    php:
-        extends:
-            file: docker-common.yml
-            service: php
+    php: &php-service
         image: "${CI_APP_IMAGE_WITH_TAG}"
         networks:
           - nw_internal
-        restart: always
+        env_file: .env
         volumes:
           - "assetsWebA:/srv/a:rw"
           - "assetsWebB:/srv/b:rw"
           - "assetsStorage:/srv/storage:rw"
+        restart: always
 
     spare:
-        extends: php
+        << : *php-service
 
     mysql:
-        extends:
-            file: docker-common.yml
-            service: mysql
-        restart: always
         networks:
           - nw_internal
+        restart: always
 
 volumes:
-    database:
     assetsWebA:
     assetsWebB:
     assetsStorage:
