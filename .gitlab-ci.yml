@@ -5,9 +5,8 @@ variables:
     CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
 
 stages:
-  - deps
-  - test
   - build
+  - test
   - deploy
 
 .suffix-vars: &suffix-vars
@@ -65,6 +64,24 @@ stages:
       - executor-docker
     dependencies: []
 
+.phpunit: &phpunit
+    stage: test
+    image: covex/docker-compose:1.0
+    <<: *suffix-vars
+    variables:
+        ENV_SUFFIX: "_TEST"
+    script:
+      - cp docker-compose.phpunit.yml build/docker-compose.override.yml
+      - cd build
+      - docker-compose up -d php mysql
+      - docker-compose exec -T php phing app-deploy database-deploy storage-prepare -Dsymfony.env=test
+      - docker-compose exec -T php phpunit
+    after_script:
+      - cd build
+      - docker-compose down -v
+    tags:
+      - executor-docker
+
 .secure-copy: &secure-copy
     stage: deploy
     image: covex/alpine-git:1.0
@@ -118,29 +135,6 @@ stages:
     except:
       - branches
 
-deps:php-composer:
-    stage: deps
-    image: covex/php7.1-fpm:1.0
-    script:
-      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - composer install --prefer-dist --no-scripts --no-autoloader --no-interaction
-    tags:
-      - executor-docker
-
-test:phpunit:
-    stage: test
-    image: covex/php7.1-fpm:1.0
-    <<: *suffix-vars
-    variables:
-        ENV_SUFFIX: "_TEST"
-    script:
-      - eval $(cat .build-env)
-      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - composer require phpunit/phpunit:* --dev --no-plugins
-      - phpunit
-    tags:
-      - executor-docker
-
 build:docker-nginx-image-master:
     <<: *docker-nginx-image
     <<: *env-master
@@ -155,6 +149,12 @@ build:docker-compose-master:
     <<: *docker-compose
     <<: *env-master
     <<: *job-policy-master
+
+test:phpunit-master:
+    <<: *phpunit
+    <<: *job-policy-master
+    dependencies:
+      - build:docker-compose-master
 
 deploy:secure-copy-master:
     <<: *secure-copy
@@ -178,6 +178,12 @@ build:docker-compose-production:
     <<: *docker-compose
     <<: *env-production
     <<: *job-policy-production
+
+test:phpunit-production:
+    <<: *phpunit
+    <<: *job-policy-production
+    dependencies:
+      - build:docker-compose-production
 
 deploy:secure-copy-production:
     <<: *secure-copy
