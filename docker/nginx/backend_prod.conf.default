@@ -1,0 +1,4 @@
+upstream backend {
+   server php:9000;
+   server spare:9000;
+}

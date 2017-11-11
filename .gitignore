@@ -1,11 +1,10 @@
-
-###> symfony/framework-bundle ###
-.env
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###
-
-###> symfony/phpunit-bridge ###
+/.idea
+/.sync
+/auth.json
+/build/
+/node_modules
+/phpunit.phar
 /phpunit.xml
-###< symfony/phpunit-bridge ###
+/public/bundles/
+/storage
+/vendor/

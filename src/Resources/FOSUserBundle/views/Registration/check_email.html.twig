@@ -1,0 +1,14 @@
+{% extends "@FOSUser/layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% block fos_user_content %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ 'layout.register'|trans }}</h3>
+        </div>
+        <div class="panel-body">
+            <p>{{ 'registration.check_email'|trans({'%email%': user.email}) }}</p>
+        </div>
+    </div>
+{% endblock fos_user_content %}

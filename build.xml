@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<project name="Docker Symfony App" default="init" basedir=".">
+    <property name="composer.path" value="/usr/local/bin/composer" />
+    <property name="composer.cache-dir" value="/srv/var/cache/composer" />
+    <property name="symfony.console" value="bin/console" />
+    <property name="symfony.env" value="dev" />
+    <property name="project.storage.dir" value="${project.basedir}/storage" />
+
+    <target name="init" depends="composer-install,app-deploy,database-deploy,storage-prepare">
+        <echo message="${phing.project.name} Init - OK" />
+    </target>
+
+    <target name="composer-install">
+        <composer composer="${composer.path}" command="config">
+            <arg value="-g" />
+            <arg value="cache-dir" />
+            <arg value="${composer.cache-dir}" />
+        </composer>
+        <composer composer="${composer.path}" command="install" />
+        <exec executable="sync-vendor" passthru="true" />
+
+        <echo message="${phing.project.name} ComposerInstall - OK" />
+    </target>
+
+    <target name="app-deploy">
+        <SymfonyConsole console="${symfony.console}" command="cache:clear" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--no-warmup" />
+        </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="cache:warmup" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+        </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="assets:install" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="public" />
+        </SymfonyConsole>
+
+        <echo message="${phing.project.name} AppDeploy - OK" />
+    </target>
+
+    <target name="database-deploy">
+        <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--force" />
+            <arg value="--no-interaction" />
+        </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:status" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+        </SymfonyConsole>
+
+        <SymfonyConsole console="${symfony.console}" command="doctrine:migrations:migrate" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+            <arg value="--no-interaction" />
+            <arg value="--allow-no-migration" />
+        </SymfonyConsole>
+
+        <echo message="${phing.project.name} DatabaseDeploy - OK" />
+    </target>
+
+    <target name="storage-prepare">
+        <mkdir dir="${project.storage.dir}/upload" />
+        <chown file="${project.storage.dir}/upload" user="www-data" group="www-data" failonerror="false" />
+
+        <mkdir dir="${project.storage.dir}/sessions" />
+        <chown file="${project.storage.dir}/sessions" user="www-data" group="www-data" failonerror="false" />
+    </target>
+</project>

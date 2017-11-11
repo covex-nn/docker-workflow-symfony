@@ -1,0 +1,51 @@
+version: '2.1'
+
+services:
+    nginx:
+        image: "${CI_NGINX_IMAGE_WITH_TAG}"
+        ports:
+          - "80"
+        networks:
+            nw_internal:
+            nw_external:
+                ipv4_address: ${NETWORK_IP}
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+          - "assetsWebA:/srv/a:ro"
+          - "assetsWebB:/srv/b:ro"
+          - "assetsStorage:/srv/storage:ro"
+        restart: always
+        labels:
+            docker-gen.host: ${SERVER_NAME}
+
+    php: &php-service
+        image: "${CI_APP_IMAGE_WITH_TAG}"
+        networks:
+          - nw_internal
+        env_file: .env
+        volumes:
+          - "assetsWebA:/srv/a:rw"
+          - "assetsWebB:/srv/b:rw"
+          - "assetsStorage:/srv/storage:rw"
+        restart: always
+
+    spare:
+        << : *php-service
+
+    mysql:
+        networks:
+          - nw_internal
+        restart: always
+
+volumes:
+    assetsWebA:
+    assetsWebB:
+    assetsStorage:
+
+networks:
+    nw_external:
+        external:
+            name: ${NETWORK_NAME}
+    nw_internal:
