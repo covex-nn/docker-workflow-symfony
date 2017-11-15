@@ -13,6 +13,7 @@ env:
       - SERVER_NAME=docker.local
       - NETWORK_IP=192.168.10.2
       - NETWORK_NAME=graynetwork
+      - DOCKER_COMPOSE_VERSION=1.17.1
 
 before_install:
   - if [ $COMPOSER_GITHUB_TOKEN ]; then
@@ -23,6 +24,13 @@ before_install:
   - mkdir build
 
 install:
+  - docker --version
+  - docker-compose --version
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose --version
   - docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24
   - docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx
   - docker build --tag $CI_APP_IMAGE_WITH_TAG .
@@ -33,6 +41,7 @@ before_script:
   - docker-compose exec -T php phing
   - docker-compose down -v --rmi local
   - cd build
+  - cat docker-compose.yml
   - docker-compose up -d
   - docker-compose up -d --force-recreate --no-deps spare
   - docker-compose exec -T spare cp -a /srv/public/. /srv/a/

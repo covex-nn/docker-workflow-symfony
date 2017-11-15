@@ -6,6 +6,8 @@
     <property name="symfony.env" value="dev" />
     <property name="project.storage.dir" value="${project.basedir}/storage" />
 
+    <property file=".env" prefix="docker-compose"/>
+
     <target name="init" depends="composer-install,app-deploy,database-deploy,storage-prepare">
         <echo message="${phing.project.name} Init - OK" />
     </target>
@@ -40,7 +42,15 @@
         <echo message="${phing.project.name} AppDeploy - OK" />
     </target>
 
-    <target name="database-deploy">
+    <target name="database-ready">
+        <echo message="Waiting for a database..." />
+        <retry retryCount="120" retryDelay="1">
+            <exec command="nc -z -v -w30 ${docker-compose.ENV_database_host} ${docker-compose.ENV_database_port}" checkreturn="true" />
+        </retry>
+        <echo message="Database is ready!" />
+    </target>
+
+    <target name="database-deploy" depends="database-ready">
         <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--force" />

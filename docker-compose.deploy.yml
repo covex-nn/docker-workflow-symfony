@@ -1,17 +1,16 @@
-version: '2.1'
+version: '3.2'
 
 services:
     nginx:
         image: "${CI_NGINX_IMAGE_WITH_TAG}"
         ports:
-          - "80"
+          - 80
         networks:
             nw_internal:
             nw_external:
                 ipv4_address: ${NETWORK_IP}
         depends_on:
-            mysql:
-                condition: service_healthy
+            - mysql
         volumes:
           - "assetsWebA:/srv/a:ro"
           - "assetsWebB:/srv/b:ro"
