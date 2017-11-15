@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.2'
 
 services:
     nginx:
@@ -22,8 +22,7 @@ services:
           - nw_internal
         env_file: .env
         depends_on:
-            mysql:
-                condition: service_healthy
+          - mysql
         volumes:
           - .:/srv
           - /composer/home
@@ -40,8 +39,7 @@ services:
           PMA_USER: "root"
           PMA_PASSWORD: "${ENV_database_root_password}"
         depends_on:
-            mysql:
-                condition: service_healthy
+          - mysql
         volumes:
           - /sessions
 

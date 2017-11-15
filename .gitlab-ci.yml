@@ -71,7 +71,6 @@ stages:
     variables:
         ENV_SUFFIX: "_TEST"
     script:
-      - cp docker-compose.phpunit.yml build/docker-compose.override.yml
       - cd build
       - docker-compose up -d php mysql
       - docker-compose exec -T php phing app-deploy database-deploy storage-prepare -Dsymfony.env=test
