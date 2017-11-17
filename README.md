@@ -12,7 +12,7 @@ __Symfony для Docker__, дополнительно вместе с пакет
 * [FOSUserBundle][2]
 * [SonataAdminBundle][3]
 * Управление CSS и Javascript файлами используя [Webpack Encore][4] и [Yarn][5]
-* Базовый twig-шаблон с подключёнными [Bootstrap][6] и [Jquery][7] в `app/Resource/views/base.html.twig` 
+* Базовый twig-шаблон с подключёнными [Bootstrap][6] и [Jquery][7] в `templates/base.html.twig` 
 
 Вместе с __Symfony для Docker__ на разных этапах используются следующие образы Docker  
 
@@ -30,16 +30,16 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
     PHP-FPM с установленными модулями `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`.         
     `xdebug` установлен, но включён только в локальном окружении разработчика
-    
+
     Установлен `acl` для правильной установки [прав доступа к файлам][14]
-    
+
     Установлен и настроен `composer`. Папка `vendor` находится внутри контейнера и не оказывает влияние на быстродействие в локальном окружении разработчика
 
     Установлен [dcron][16] для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab` 
 
     Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
-Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [src/Resources/doc](src/Resources/doc)
+Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [doc](doc)
 
 [1]:  https://github.com/symfony/symfony-standard
 [2]:  https://github.com/FriendsOfSymfony/FOSUserBundle

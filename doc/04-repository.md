@@ -7,13 +7,13 @@
 
 ### Настроить основной репозиторий
 
-Настройки в разделе `Settings --> CI/CD Pipelines`
+Настройки в разделе `Settings --> CI/CD --> General pipelines settings`
 
 * Git strategy for pipelines [x] git clone
 
 * Public pipelines [ ]
 
-* Создать переменные
+В разделе `Settings --> CI/CD --> Secret variables` создать переменные
 
 |Переменная|Значение|
 | -------- | ------ |
@@ -46,13 +46,15 @@
  
 Репозиторий разработчика создаётся путём создания Fork администратором из основного репозитория.
 
-### Настройка репозитория разработчика в `Settings --> CI/CD Pipelines`
+### Настройка репозитория разработчика в `Settings --> CI/CD`
+
+В разделе `General pipelines settings`
 
 * Git strategy for pipelines [x] git clone
 
 * Public pipelines [ ]
 
-* Создать переменные
+Создать переменные в разделе `Secret variables`
 
 |Переменная|Значение|
 | -------- | ------ |
@@ -68,17 +70,16 @@
 
 ### Настройка репозитория разработчика
 
-В разделе `Settings --> Repository`
+В разделе `Settings --> Repository --> Protected Branches` нужно _Unprotect_ ветку master и
+_Protect_ ветку stable.
 
-* Unprotect ветку master
-* Protect ветку stable
-* Protect все тэги
+В разделе `Settings --> Repository --> Protected Tags` нужно _Protect_ все тэги через wildcard `*`
 
-Создать ветку `stable` в том же месте, что и `master` 
+В разделе `Repository --> Branches` создать ветку `stable` в том же месте, что и `master` 
 
-Запустить Pipeline для ветки `master`
+В разделе `CI / CD --> Pipelines` запустить Pipeline для ветки `master`
 
-Выдать роль `Developer` пользователю `dev1` в репозитории разработчика 
+В разделе `Settings --> Members` выдать роль `Developer` пользователю `dev1` 
 
 ### Настройка основного репозитория
 
