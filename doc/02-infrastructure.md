@@ -94,8 +94,6 @@ gitlab-ci-multi-runner register -n \
    --executor docker \
    --description "docker-dev" \
    --docker-image "docker:latest" \
-   --docker-volumes "/composer/home/cache" \
-   --docker-volumes "/root/.composer/cache" \
    --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
 ```
 

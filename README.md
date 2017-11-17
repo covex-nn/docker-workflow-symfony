@@ -39,7 +39,7 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
     Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
-Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [src/Resources/doc](src/Resources/doc)
+Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [doc](doc)
 
 [1]:  https://github.com/symfony/symfony-standard
 [2]:  https://github.com/FriendsOfSymfony/FOSUserBundle

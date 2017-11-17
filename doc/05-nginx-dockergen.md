@@ -110,7 +110,7 @@ server {
 * Создать SSL-сертификат через LetsEncrypt
 * Запустить pipeline в GitLab и выложить код проекта на сервер  
 
-Запуск `docker-gen` можно доверить [systemd][1] или [upstart][2]
+Запуск `docker-gen` можно доверить [systemd][2] или [upstart][3]
 
 [1]: https://github.com/jwilder/docker-gen#host-install
 [2]: https://github.com/jwilder/docker-gen/blob/master/examples/docker-gen.service
