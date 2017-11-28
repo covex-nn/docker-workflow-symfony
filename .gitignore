@@ -9,3 +9,7 @@
 ###> symfony/phpunit-bridge ###
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###
