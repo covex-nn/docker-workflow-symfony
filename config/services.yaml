@@ -100,9 +100,6 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    app.repository.factory:
-        class: Doctrine\ORM\Repository\DefaultRepositoryFactory
-
     App\Admin\UserAdmin:
         arguments: [ ~, App\Entity\User, ~ ]
         public: true
@@ -110,10 +107,5 @@ services:
             - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
         calls:
             - [ 'setTranslationDomain', [ 'AppAdmin'] ]
-
-    App\Repository\UserRepository:
-        factory: [ "@app.repository.factory", "getRepository" ]
-        arguments:
-            $entityName: "App:User"
 
     FOS\UserBundle\Model\UserManagerInterface: "@fos_user.user_manager.default"
