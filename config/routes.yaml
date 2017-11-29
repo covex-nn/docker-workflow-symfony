@@ -2,11 +2,6 @@
 #    path: /
 #    defaults: { _controller: 'App\Controller\DefaultController::index' }
 
-# first, run composer req annotations
-#controllers:
-#    resource: ../src/Controller/
-#    type: annotation
-
 fos_user:
     resource: "@FOSUserBundle/Resources/config/routing/all.xml"
 

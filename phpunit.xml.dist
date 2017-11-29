@@ -12,6 +12,7 @@
         <env name="KERNEL_CLASS" value="App\Kernel" />
         <env name="APP_ENV" value="test" />
         <env name="APP_DEBUG" value="0" />
+        <env name="SHELL_VERBOSITY" value="-1" />
         <!-- define your env variables for the test env here -->
     </php>
 
@@ -20,4 +21,8 @@
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
+
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
 </phpunit>
