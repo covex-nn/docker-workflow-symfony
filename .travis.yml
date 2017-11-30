@@ -3,7 +3,10 @@ sudo: required
 services:
   - docker
 
-language: bash
+language: php
+
+php:
+  - 7.1
 
 env:
     global:
@@ -39,6 +42,8 @@ install:
 before_script:
   - docker-compose up -d
   - docker-compose exec -T php phing
+  - docker-compose exec -T php phing app-deploy -Dsymfony.env=test
+  - docker-compose exec -T php php bin/phpunit
   - docker-compose down -v --rmi local
   - cd build
   - cat docker-compose.yml

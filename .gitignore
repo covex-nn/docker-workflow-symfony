@@ -1,6 +1,7 @@
 /.idea
 /.sync
 /auth.json
+/bin/.phpunit
 /build/
 /node_modules
 /phpunit.phar
