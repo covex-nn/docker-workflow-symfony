@@ -43,7 +43,8 @@
         "platform": {
             "php": "7.1.0"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "vendor-dir": "/composer/vendor"
     },
     "extra": {
         "symfony": {
