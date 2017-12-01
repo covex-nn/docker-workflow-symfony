@@ -20,11 +20,11 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
 * `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
 
+* `mysql:5.7`
+
 * [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
 
 * [covex/alpine-git:1.0][13] - Alpine Linux с установленнымb `bash`, `openssh-client` и `git`
-
-* [covex/mysql][15] - MySQL с проверкой HEALTHCHECK
 
 * [covex/php7.1-fpm:latest][12]
 
@@ -55,5 +55,4 @@ __Symfony для Docker__, дополнительно вместе с пакет
 [12]: https://hub.docker.com/r/covex/php7.1-fpm/
 [13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
-[15]: https://hub.docker.com/r/covex/mysql/
 [16]: http://www.jimpryor.net/linux/dcron.html
