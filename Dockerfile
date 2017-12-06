@@ -1,6 +1,5 @@
 FROM covex/php7.1-fpm:latest
 
-ENV APP_ENV=prod
 WORKDIR /srv
 
 COPY composer.json ./
@@ -16,6 +15,10 @@ RUN composer install \
     && rm -rf $COMPOSER_HOME/cache/*
 
 ADD . ./
+
+ENV APP_ENV=prod
+ENV TRUSTED_PROXIES=0.0.0.0/0
+
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
     && chmod 755 docker/php/start.sh \
