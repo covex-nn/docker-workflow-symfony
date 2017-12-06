@@ -51,6 +51,10 @@
     </target>
 
     <target name="database-deploy" depends="database-ready">
+        <SymfonyConsole console="${symfony.console}" command="doctrine:cache:clear-metadata" checkReturn="true">
+            <arg name="env" value="${symfony.env}" />
+        </SymfonyConsole>
+
         <SymfonyConsole console="${symfony.console}" command="doctrine:schema:update" checkReturn="true">
             <arg name="env" value="${symfony.env}" />
             <arg value="--force" />
