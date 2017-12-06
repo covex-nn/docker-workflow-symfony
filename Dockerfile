@@ -8,6 +8,7 @@ COPY composer.lock ./
 COPY auth.json ./
 
 RUN composer install \
+        --no-dev \
         --prefer-dist \
         --no-scripts \
         --no-autoloader \
@@ -22,6 +23,6 @@ RUN chmod -R -x+X . \
     && composer run-script post-install-cmd \
     && phing app-deploy -Dsymfony.env=prod \
     && cat docker/php/app.crontab > /etc/crontabs/root
-    
+
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]
