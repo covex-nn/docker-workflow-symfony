@@ -22,7 +22,7 @@ ENV TRUSTED_PROXIES=0.0.0.0/0
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
     && chmod 755 docker/php/start.sh \
-    && composer dump-autoload --optimize \
+    && composer dump-autoload --no-dev --optimize \
     && composer run-script post-install-cmd \
     && phing app-deploy -Dsymfony.env=prod \
     && cat docker/php/app.crontab > /etc/crontabs/root
