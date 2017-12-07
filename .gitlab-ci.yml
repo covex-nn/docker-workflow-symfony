@@ -73,7 +73,8 @@ stages:
     script:
       - cd build
       - docker-compose up -d php mysql
-      - docker-compose exec -T php phing app-deploy database-deploy storage-prepare -Dsymfony.env=test
+      - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
+      - docker-compose exec -T php phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
       - docker-compose exec -T php sh -c "curl -L -o phpunit.phar https://phar.phpunit.de/phpunit.phar && php phpunit.phar"
     after_script:
       - cd build

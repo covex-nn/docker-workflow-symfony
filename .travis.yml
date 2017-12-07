@@ -50,7 +50,7 @@ before_script:
   - docker-compose up -d
   - docker-compose up -d --force-recreate --no-deps spare
   - docker-compose exec -T spare cp -a /srv/public/. /srv/a/
-  - docker-compose exec -T spare phing storage-prepare database-deploy
+  - docker-compose exec -T spare phing app-deploy storage-prepare database-deploy -Dsymfony.env=prod
   - docker-compose up -d --force-recreate --no-deps php
   - docker-compose stop nginx
   - docker-compose up -d nginx
@@ -66,6 +66,8 @@ script:
     done
   - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/"
   - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/robots.txt"
+  - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
+  - docker-compose exec -T php phing app-deploy -Dsymfony.env=test
   - docker-compose exec -T php curl -L -o phpunit.phar https://phar.phpunit.de/phpunit.phar
   - docker-compose exec -T php php phpunit.phar
 
