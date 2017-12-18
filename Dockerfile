@@ -1,4 +1,4 @@
-FROM covex/php7.1-fpm:latest
+FROM covex/php7.1-fpm:master
 
 WORKDIR /srv
 
@@ -25,7 +25,7 @@ RUN chmod -R -x+X . \
     && composer dump-autoload --no-dev --optimize \
     && composer run-script post-install-cmd \
     && phing app-deploy -Dsymfony.env=prod \
-    && cat docker/php/app.crontab > /etc/crontabs/root
+    && cat docker/php/app.crontab > /var/spool/cron/crontabs/root
 
 ENTRYPOINT [ "/srv/docker/php/start.sh" ]
 CMD [ "php-fpm" ]

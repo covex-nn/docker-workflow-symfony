@@ -1,11 +1,10 @@
-FROM covex/php7.1-fpm:latest
+FROM covex/php7.1-fpm:master
 
 ENV APP_ENV=dev
 ENV APP_DEBUG=1
 
 RUN docker-php-ext-enable xdebug \
-    && addgroup -g 50 docker \
-    && adduser -D -u 1000 -G docker docker \
+    && adduser --system --no-create-home --uid 1000 --gid 50 docker \
     && mkdir -p /tmp/sessions \
     && chmod -R 777 /tmp/sessions
 

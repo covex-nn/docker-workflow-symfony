@@ -35,7 +35,7 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
     Установлен и настроен `composer`. Папка `vendor` находится внутри контейнера и не оказывает влияние на быстродействие в локальном окружении разработчика
 
-    Установлен [dcron][16] для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab`
+    Установлен `cron` для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab`
 
     Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
@@ -55,4 +55,3 @@ __Symfony для Docker__, дополнительно вместе с пакет
 [12]: https://hub.docker.com/r/covex/php7.1-fpm/
 [13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
-[16]: http://www.jimpryor.net/linux/dcron.html
