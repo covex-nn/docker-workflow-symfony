@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM nginx:mainline
 ARG server_port=80
 ARG server_name=docker.local
 ARG server_upstream=dev

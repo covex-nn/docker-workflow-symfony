@@ -52,6 +52,7 @@ before_script:
   - docker-compose exec -T spare cp -a /srv/public/. /srv/a/
   - docker-compose exec -T spare phing app-deploy storage-prepare database-deploy -Dsymfony.env=prod
   - docker-compose up -d --force-recreate --no-deps php
+  - docker-compose exec -T php cron
   - docker-compose stop nginx
   - docker-compose up -d nginx
 
@@ -64,7 +65,7 @@ script:
             exit 1;
         fi
     done
-  - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/"
+  - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/login"
   - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/robots.txt"
   - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
   - docker-compose exec -T php phing app-deploy -Dsymfony.env=test

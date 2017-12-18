@@ -105,7 +105,7 @@ stages:
           docker-compose exec -T spare sh -c "cd /srv && rm -rf b/* && cp -a public/. b/ && rm -rf a/* && cp -a public/. a/" ;
           docker-compose exec -T spare phing storage-prepare database-deploy -Dsymfony.env=prod ;
           docker-compose up -d --force-recreate --no-deps php ;
-          docker-compose exec -T php crond -b'
+          docker-compose exec -T php cron'
       - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
           cd '"$DEPLOY_DIRECTORY"' ;
           echo "[$(date -R)] web-server is down" ;
