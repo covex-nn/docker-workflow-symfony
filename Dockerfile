@@ -1,4 +1,4 @@
-FROM covex/php7.1-fpm:master
+FROM covex/php7.2-fpm:latest
 
 WORKDIR /srv
 
