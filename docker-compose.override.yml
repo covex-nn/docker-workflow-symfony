@@ -34,10 +34,10 @@ services:
         networks:
           - nw_internal
         environment:
-          PMA_ARBITRARY: "1"
-          PMA_HOST: "mysql"
-          PMA_USER: "root"
-          PMA_PASSWORD: "${ENV_database_root_password}"
+            PMA_ARBITRARY: "1"
+            PMA_HOST: "mysql"
+            PMA_USER: "root"
+            PMA_PASSWORD: "${ENV_database_root_password}"
         depends_on:
           - mysql
         volumes:
