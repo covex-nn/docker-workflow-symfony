@@ -7,8 +7,9 @@ __Symfony для Docker__ - это набор процедур непрерыв�
 изменений через [GitLab CI/CD Pipelines][8] от локального окружения разработчика
 до production с практически нулевым deployment downtime.
 
-__Symfony для Docker__, дополнительно вместе с пакетами из [Symfony Standard Edition][1], включает в себя:
- 
+__Symfony для Docker__ включает в себя:
+
+* PHP 7.2 
 * [FOSUserBundle][2]
 * [SonataAdminBundle][3]
 * Управление CSS и Javascript файлами используя [Webpack Encore][4] и [Yarn][5]
@@ -16,17 +17,9 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
 Вместе с __Symfony для Docker__ на разных этапах используются следующие образы Docker  
 
-* `nginx:alpine`
+* `nginx:mainline`
 
-* `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
-
-* `mysql:5.7`
-
-* [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
-
-* [covex/alpine-git:1.0][13] - Alpine Linux с установленнымb `bash`, `openssh-client` и `git`
-
-* [covex/php7.1-fpm:latest][12]
+* [covex/php7.2-fpm:latest][12]
 
     PHP-FPM с установленными модулями `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`.
     `xdebug` установлен, но включён только в локальном окружении разработчика
@@ -39,9 +32,16 @@ __Symfony для Docker__, дополнительно вместе с пакет
 
     Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
+* `mysql:5.7`
+
+* `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
+
+* [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
+
+* [covex/alpine-git:1.0][13] - Alpine Linux с установленными `bash`, `openssh-client` и `git`
+
 Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [doc](doc)
 
-[1]:  https://github.com/symfony/symfony-standard
 [2]:  https://github.com/FriendsOfSymfony/FOSUserBundle
 [3]:  https://github.com/sonata-project/SonataAdminBundle
 [4]:  http://symfony.com/doc/current/frontend.html
@@ -52,6 +52,6 @@ __Symfony для Docker__, дополнительно вместе с пакет
 [9]:  https://docs.docker.com/
 [10]: https://docs.docker.com/compose/
 [11]: https://hub.docker.com/r/covex/docker-compose/
-[12]: https://hub.docker.com/r/covex/php7.1-fpm/
+[12]: https://hub.docker.com/r/covex/php7.2-fpm/
 [13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
