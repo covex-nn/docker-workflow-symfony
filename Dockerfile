@@ -2,6 +2,8 @@ FROM covex/php7.2-fpm:latest
 
 WORKDIR /srv
 
+ENV APP_ENV=prod
+
 COPY composer.json ./
 COPY composer.lock ./
 COPY auth.json ./
@@ -15,9 +17,6 @@ RUN composer install \
     && rm -rf $COMPOSER_HOME/cache/*
 
 ADD . ./
-
-ENV APP_ENV=prod
-ENV TRUSTED_PROXIES=0.0.0.0/0
 
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \

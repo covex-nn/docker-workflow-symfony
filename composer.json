@@ -16,6 +16,9 @@
     },
     "require": {
         "php": "^7.0.8",
+        "doctrine/doctrine-bundle": "^1.6.10",
+        "doctrine/doctrine-migrations-bundle": "^1.3",
+        "doctrine/orm": "^2.5.11",
         "friendsofsymfony/user-bundle": "^2.0",
         "sensio/framework-extra-bundle": "^5.0",
         "sonata-project/admin-bundle": "^3.24",
@@ -25,7 +28,6 @@
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^3.4",
         "symfony/lts": "^3",
-        "symfony/orm-pack": "^1.0",
         "symfony/swiftmailer-bundle": "^3.1",
         "symfony/translation": "^3.4",
         "symfony/validator": "^3.4",
@@ -35,7 +37,8 @@
         "symfony/debug-bundle": "^3.4",
         "symfony/dotenv": "^3.4",
         "symfony/phpunit-bridge": "^3.4",
-        "symfony/profiler-pack": "^1.0"
+        "symfony/stopwatch": "^3.4",
+        "symfony/web-profiler-bundle": "^3.4"
     },
     "config": {
         "platform": {

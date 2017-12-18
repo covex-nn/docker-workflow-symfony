@@ -24,6 +24,8 @@ services:
         networks:
           - nw_internal
         env_file: .env
+        environment:
+            TRUSTED_PROXIES: "0.0.0.0/0"
         volumes:
           - "assetsWebA:/srv/a:rw"
           - "assetsWebB:/srv/b:rw"
