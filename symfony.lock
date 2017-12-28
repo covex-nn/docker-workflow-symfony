@@ -63,7 +63,7 @@
         "version": "2.1.3"
     },
     "friendsofsymfony/user-bundle": {
-        "version": "v2.0.2"
+        "version": "2.1.x-dev"
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
@@ -212,9 +212,6 @@
     "symfony/intl": {
         "version": "v3.4.2"
     },
-    "symfony/lts": {
-        "version": "v3"
-    },
     "symfony/options-resolver": {
         "version": "v3.4.2"
     },
@@ -227,9 +224,6 @@
             "ref": "179470cb6492db92dffee208cfdb436f175c93b4"
         }
     },
-    "symfony/polyfill-apcu": {
-        "version": "v1.6.0"
-    },
     "symfony/polyfill-intl-icu": {
         "version": "v1.6.0"
     },
@@ -240,6 +234,9 @@
         "version": "v1.6.0"
     },
     "symfony/polyfill-php70": {
+        "version": "v1.6.0"
+    },
+    "symfony/polyfill-php72": {
         "version": "v1.6.0"
     },
     "symfony/polyfill-util": {
@@ -273,7 +270,7 @@
         }
     },
     "symfony/stopwatch": {
-        "version": "v3.4.2"
+        "version": "v4.0.2"
     },
     "symfony/swiftmailer-bundle": {
         "version": "2.5",
@@ -312,7 +309,7 @@
         "version": "v3.4.2"
     },
     "symfony/var-dumper": {
-        "version": "v3.4.2"
+        "version": "v4.0.2"
     },
     "symfony/web-profiler-bundle": {
         "version": "3.3",

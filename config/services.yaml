@@ -16,8 +16,8 @@ parameters:
     env(ENV_database_mysql_version): "5.7"
 
     env(MAILER_URL): null://localhost
-    env(MAILER_FROM_ADDRESS): "No-reply"
-    env(MAILER_FROM_NAME): "no-reply@docker.local"
+    env(MAILER_FROM_NAME): "No-reply"
+    env(MAILER_FROM_ADDRESS): "no-reply@docker.local"
 
 # https://symfony.com/doc/current/bundles/FOSUserBundle/configuration_reference.html
 fos_user:
@@ -27,16 +27,14 @@ fos_user:
     from_email:
         address: "%env(MAILER_FROM_ADDRESS)%"
         sender_name: "%env(MAILER_FROM_NAME)%"
+    service:
+        mailer: fos_user.mailer.twig_swift
 
 framework:
     csrf_protection: ~
     session:
         handler_id: session.handler.native_file
         save_path: '/srv/storage/sessions'
-    templating:
-        engines: ['twig']
-    validation:
-        enable_annotations: true
 
 security:
     encoders:
@@ -71,10 +69,6 @@ sonata_block:
         sonata.admin.block.admin_list:
             contexts: [admin]
 
-twig:
-    form_themes:
-        - 'bootstrap_3_layout.html.twig'
-
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -105,5 +99,3 @@ services:
             - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
         calls:
             - [ 'setTranslationDomain', [ 'AppAdmin'] ]
-
-    FOS\UserBundle\Model\UserManagerInterface: "@fos_user.user_manager.default"
