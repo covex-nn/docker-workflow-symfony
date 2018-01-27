@@ -20,9 +20,8 @@
         "doctrine/orm": "^2.5.11",
         "friendsofsymfony/user-bundle": "2.1.x-dev",
         "sensio/framework-extra-bundle": "^5.0",
-        "sonata-project/admin-bundle": "dev-twig as 3.29.0.1",
-        "sonata-project/block-bundle": "dev-twig as 3.9.0.1",
-        "sonata-project/doctrine-orm-admin-bundle": "dev-twig as 3.3.0.1",
+        "sonata-project/admin-bundle": "3.x@dev",
+        "sonata-project/doctrine-orm-admin-bundle": "3.x@dev",
         "symfony/asset": "^4.0",
         "symfony/console": "^4.0",
         "symfony/flex": "^1.0",
@@ -38,11 +37,6 @@
         "symfony/stopwatch": "^4.0",
         "symfony/web-profiler-bundle": "^4.0"
     },
-    "repositories": [
-        { "type": "vcs", "url": "https://github.com/covex-nn/SonataBlockBundle" },
-        { "type": "vcs", "url": "https://github.com/covex-nn/SonataAdminBundle" },
-        { "type": "vcs", "url": "https://github.com/covex-nn/SonataDoctrineORMAdminBundle" }
-    ],
     "config": {
         "platform": {
             "php": "7.2.0"
