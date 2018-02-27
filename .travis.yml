@@ -64,7 +64,7 @@ script:
   - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/robots.txt"
   - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
   - docker-compose exec -T php phing app-deploy -Dsymfony.env=test
-  - docker-compose exec -T php curl -L -o phpunit.phar https://phar.phpunit.de/phpunit.phar
+  - docker-compose exec -T php curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar
   - docker-compose exec -T php php phpunit.phar
 
 after_success:
