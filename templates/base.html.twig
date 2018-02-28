@@ -12,7 +12,7 @@
     {% block stylesheets_wrapper %}
         {% block stylesheets %}
             {% block stylesheets_core %}
-                <link href="{{ asset('assets/global.css') }}" rel="stylesheet" type="text/css" />
+                <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
             {% endblock %}
         {% endblock %}
     {% endblock %}
@@ -24,8 +24,8 @@
     {% block javascripts_wrapper %}
         {% block javascripts %}
             {% block javascripts_core %}
-                <script type="text/javascript" src="{{ asset('assets/main.js') }}"></script>
-                <script type="text/javascript" src="{{ asset('assets/app.js') }}"></script>
+                <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+                <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
             {% endblock %}
         {% endblock %}
     {% endblock %}

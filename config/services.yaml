@@ -16,64 +16,8 @@ parameters:
     env(ENV_database_mysql_version): "5.7"
 
     env(MAILER_URL): null://localhost
-    env(MAILER_FROM_ADDRESS): "No-reply"
-    env(MAILER_FROM_NAME): "no-reply@docker.local"
-
-# https://symfony.com/doc/current/bundles/FOSUserBundle/configuration_reference.html
-fos_user:
-    db_driver: orm
-    firewall_name: main
-    user_class: App\Entity\User
-    from_email:
-        address: "%env(MAILER_FROM_ADDRESS)%"
-        sender_name: "%env(MAILER_FROM_NAME)%"
-
-framework:
-    csrf_protection: ~
-    session:
-        handler_id: session.handler.native_file
-        save_path: '/srv/storage/sessions'
-    templating:
-        engines: ['twig']
-    validation:
-        enable_annotations: true
-
-security:
-    encoders:
-        FOS\UserBundle\Model\UserInterface: bcrypt
-    role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: ROLE_ADMIN
-    providers:
-        fos_userbundle:
-            id: fos_user.user_provider.username
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            pattern: ^/
-            form_login:
-                provider: fos_userbundle
-                csrf_token_generator: security.csrf.token_manager
-            logout:       true
-            anonymous:    true
-    access_control:
-        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, role: ROLE_ADMIN }
-
-sonata_block:
-    default_contexts: [cms]
-    blocks:
-        # enable the SonataAdminBundle block
-        sonata.admin.block.admin_list:
-            contexts: [admin]
-
-twig:
-    form_themes:
-        - 'bootstrap_3_layout.html.twig'
+    env(MAILER_FROM_NAME): "No-reply"
+    env(MAILER_FROM_ADDRESS): "no-reply@docker.local"
 
 services:
     # default configuration for services in *this* file
@@ -88,7 +32,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{Entity,Migrations,Tests}'
+        exclude: '../src/{Entity,Migrations,Tests,Kernel.php}'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -98,12 +42,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Admin\UserAdmin:
-        arguments: [ ~, App\Entity\User, ~ ]
-        public: true
-        tags:
-            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
-        calls:
-            - [ 'setTranslationDomain', [ 'AppAdmin'] ]
-
-    FOS\UserBundle\Model\UserManagerInterface: "@fos_user.user_manager.default"

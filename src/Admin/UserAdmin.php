@@ -9,6 +9,7 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 /**
@@ -102,7 +103,7 @@ class UserAdmin extends AbstractAdmin
             ->add('plainPassword', TextType::class, array(
                 'required' => (!$this->getSubject() || is_null($this->getSubject()->getId())),
             ))
-            ->add('roles', 'choice', [
+            ->add('roles', ChoiceType::class, [
                 'choices'  => $choices,
                 'multiple' => true
             ])
