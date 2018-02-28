@@ -20,7 +20,7 @@
         "doctrine/orm": "^2.6",
         "friendsofsymfony/user-bundle": "^2.1",
         "sensio/framework-extra-bundle": "^5.0",
-        "symfony/asset": "^4.0",
+        "sonata-project/doctrine-orm-admin-bundle": "^3.4",
         "symfony/console": "^4.0",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.0",
@@ -39,8 +39,7 @@
         "platform": {
             "php": "7.2.0"
         },
-        "sort-packages": true,
-        "vendor-dir": "/composer/vendor"
+        "sort-packages": true
     },
     "extra": {
         "symfony": {
