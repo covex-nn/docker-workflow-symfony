@@ -57,7 +57,7 @@
         "version": "v1.6.2"
     },
     "doctrine/orm": {
-        "version": "v2.6.0"
+        "version": "v2.6.1"
     },
     "egulias/email-validator": {
         "version": "2.1.3"
