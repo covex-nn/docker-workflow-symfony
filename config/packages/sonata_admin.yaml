@@ -1,0 +1,22 @@
+sonata_admin:
+    title: 'Sonata Admin'
+    dashboard:
+        blocks:
+            - { type: sonata.admin.block.admin_list, position: left }
+
+sonata_block:
+    blocks:
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    app.admin.user:
+        class: App\Admin\UserAdmin
+        arguments: [ ~, App\Entity\User, ~ ]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }

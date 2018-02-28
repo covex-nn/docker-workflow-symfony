@@ -68,6 +68,10 @@
 
 6. Установка [Webpack Encore][2]
 
+    ```
+    docker-compose exec php composer require webpack-encore
+    ```
+
     Установите [Nodejs][3], а затем [пакетный менеджер yarn][4]
     
     ```

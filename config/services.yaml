@@ -19,56 +19,6 @@ parameters:
     env(MAILER_FROM_NAME): "No-reply"
     env(MAILER_FROM_ADDRESS): "no-reply@docker.local"
 
-# https://symfony.com/doc/current/bundles/FOSUserBundle/configuration_reference.html
-fos_user:
-    db_driver: orm
-    firewall_name: main
-    user_class: App\Entity\User
-    from_email:
-        address: "%env(MAILER_FROM_ADDRESS)%"
-        sender_name: "%env(MAILER_FROM_NAME)%"
-    service:
-        mailer: fos_user.mailer.twig_swift
-
-framework:
-    csrf_protection: ~
-    session:
-        handler_id: session.handler.native_file
-        save_path: '/srv/storage/sessions'
-
-security:
-    encoders:
-        FOS\UserBundle\Model\UserInterface: bcrypt
-    role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: ROLE_ADMIN
-    providers:
-        fos_userbundle:
-            id: fos_user.user_provider.username
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            pattern: ^/
-            form_login:
-                provider: fos_userbundle
-                csrf_token_generator: security.csrf.token_manager
-            logout:       true
-            anonymous:    true
-    access_control:
-        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, role: ROLE_ADMIN }
-
-sonata_block:
-    default_contexts: [cms]
-    blocks:
-        # enable the SonataAdminBundle block
-        sonata.admin.block.admin_list:
-            contexts: [admin]
-
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -92,10 +42,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Admin\UserAdmin:
-        arguments: [ ~, App\Entity\User, ~ ]
-        public: true
-        tags:
-            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }
-        calls:
-            - [ 'setTranslationDomain', [ 'AppAdmin'] ]

@@ -12,7 +12,6 @@ __Symfony для Docker__ включает в себя:
 * PHP 7.2 
 * [FOSUserBundle][2]
 * [SonataAdminBundle][3]
-* Управление CSS и Javascript файлами используя [Webpack Encore][4] и [Yarn][5]
 * Базовый twig-шаблон с подключёнными [Bootstrap][6] и [Jquery][7] в `templates/base.html.twig`
 
 Вместе с __Symfony для Docker__ на разных этапах используются следующие образы Docker  
