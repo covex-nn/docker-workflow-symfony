@@ -1,5 +1,10 @@
 sudo: required
 
+language: php
+
+php:
+    - 7.2
+
 services:
     - docker
 
@@ -11,11 +16,12 @@ env:
         - SERVER_NAME=docker.local
         - NETWORK_NAME=graynetwork
         - DOCKER_COMPOSE_VERSION=1.17.1
+        - DOCKER_PHP=true
 
 matrix:
     include:
-        - env: DOCKER_ENV="local" NETWORK_IP="127.0.0.1"
-        - env: DOCKER_ENV="remote" NETWORK_IP="192.168.10.2"
+        - env: DOCKER_ENV="local" NETWORK_IP="127.0.0.1" DOCKER_SERVICES=(mysql) DOCKER_PHP=false SERVER_NAME=localhost ENV_database_host="127.0.0.1"
+        - env: DOCKER_ENV="remote" NETWORK_IP="192.168.10.2" DOCKER_SERVICES=(nginx mysql php spare)
 
 before_install:
     - if [ $COMPOSER_GITHUB_TOKEN ]; then
@@ -25,15 +31,27 @@ before_install:
       fi
 
 install:
+    - mkdir --parents "${HOME}/bin";
     - sudo rm /usr/local/bin/docker-compose
     - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
     - chmod +x docker-compose
     - sudo mv docker-compose /usr/local/bin
+    - if [[ $DOCKER_PHP == false ]]; then
+          wget "https://www.phing.info/get/phing-latest.phar" --output-document="${HOME}/bin/phing";
+          chmod u+x "${HOME}/bin/phing";
+      fi
 
 before_script:
     - if [[ $DOCKER_ENV == 'local' ]]; then
+          sudo service mysql stop;
           docker-compose up -d;
-          docker-compose exec -T php phing;
+          if [[ $DOCKER_PHP == false ]]; then
+              composer install;
+              phing;
+          else
+              docker-compose exec -T php composer install;
+              docker-compose exec -T php phing;
+          fi;
       fi
     - if [[ $DOCKER_ENV == 'remote' ]]; then
           docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24;
@@ -55,25 +73,20 @@ before_script:
       fi
 
 script:
-    - docker-compose exec -T php phing app-deploy -Dsymfony.env=test
     - if [[ $DOCKER_ENV == 'local' ]]; then
-          docker-compose exec -T php php bin/phpunit;
-          SERVICES=(mysql);
+          bin/phpunit;
       fi
     - if [[ $DOCKER_ENV == 'remote' ]]; then
           docker-compose exec -T php curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar;
           docker-compose exec -T php php phpunit.phar;
-          SERVICES=(nginx mysql php spare);
       fi
-    - for (( i=0; i<${#SERVICES[@]}; i++ )) do
-          ID=$(docker-compose ps -q ${SERVICES[$i]});
+    - for (( i=0; i<${#DOCKER_SERVICES[@]}; i++ )) do
+          ID=$(docker-compose ps -q ${DOCKER_SERVICES[$i]});
           PORT=$(docker ps --filter id=$ID --filter status=running --format "{{.Ports}}");
           if [ ! $PORT ]; then
               exit 1;
           fi
       done
-    - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/login"
-    - "curl -H \"Host: $SERVER_NAME\" http://$NETWORK_IP/robots.txt"
 
 after_success:
     - docker-compose images
