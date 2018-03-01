@@ -1,0 +1,40 @@
+version: '3.2'
+
+services:
+    nginx:
+        build:
+          context: ./docker/nginx/
+        ports:
+          - "80:80"
+        networks:
+          - default
+        depends_on:
+          - php
+        volumes:
+          - ./public:/srv/public
+          - ./storage/upload:/srv/storage/upload
+
+    php:
+        build:
+            context: "."
+            dockerfile: Dockerfile-dev
+        networks:
+          - default
+        env_file: .env
+        depends_on:
+          - mysql
+        volumes:
+          - .:/srv
+          - /composer/home
+
+    mysql:
+        ports:
+            - "3306:3306"
+        networks:
+          - default
+
+volumes:
+    assets:
+
+networks:
+    default:

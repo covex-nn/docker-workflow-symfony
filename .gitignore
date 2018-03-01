@@ -1,11 +1,9 @@
-/.idea
 /.sync
 /auth.json
 /bin/.phpunit
 /build/
 /node_modules
-/phpunit.phar
-/phpunit.xml
 /public/bundles/
+/public/upload
 /storage
 /vendor/

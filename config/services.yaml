@@ -2,7 +2,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: "%env(ENV_locale)%"
-    env(ENV_locale): ru
+    env(ENV_locale): en
 
     env(APP_SECRET): "%env(ENV_secret)%"
     env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
@@ -42,3 +42,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Admin\UserAdmin:
+        arguments: [ ~, App\Entity\User, ~ ]
+        public: true
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Users, group: Miscellaneous }

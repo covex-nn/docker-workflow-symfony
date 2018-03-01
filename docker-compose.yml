@@ -3,8 +3,6 @@ version: '3.2'
 services:
     mysql:
         image: mysql:5.7
-        expose:
-          - 3306
         environment:
             MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
             MYSQL_DATABASE: "${ENV_database_name}"
