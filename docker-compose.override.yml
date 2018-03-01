@@ -5,14 +5,14 @@ services:
         ports:
             - "3306:3306"
         networks:
-          - default
+          - nw_internal
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         ports:
           - 8080:80
         networks:
-          - default
+          - nw_internal
         environment:
             PMA_ARBITRARY: "1"
             PMA_HOST: "mysql"
@@ -24,4 +24,4 @@ services:
           - /sessions
 
 networks:
-    default:
+    nw_internal:

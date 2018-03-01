@@ -6,7 +6,7 @@ services:
         ports:
           - 80
         networks:
-            default:
+            nw_internal:
             nw_external:
                 ipv4_address: ${NETWORK_IP}
         depends_on:
@@ -22,7 +22,7 @@ services:
     php: &php-service
         image: "${CI_APP_IMAGE_WITH_TAG}"
         networks:
-          - default
+          - nw_internal
         env_file: .env
         environment:
             TRUSTED_PROXIES: "0.0.0.0/0"
@@ -37,7 +37,7 @@ services:
 
     mysql:
         networks:
-          - default
+          - nw_internal
         restart: always
 
 volumes:
@@ -49,4 +49,4 @@ networks:
     nw_external:
         external:
             name: ${NETWORK_NAME}
-    default:
+    nw_internal:

@@ -7,7 +7,7 @@ services:
         ports:
           - "80:80"
         networks:
-          - default
+          - nw_internal
         depends_on:
           - php
         volumes:
@@ -19,7 +19,7 @@ services:
             context: "."
             dockerfile: Dockerfile-dev
         networks:
-          - default
+          - nw_internal
         env_file: .env
         depends_on:
           - mysql
@@ -31,10 +31,10 @@ services:
         ports:
             - "3306:3306"
         networks:
-          - default
+          - nw_internal
 
 volumes:
     assets:
 
 networks:
-    default:
+    nw_internal:
