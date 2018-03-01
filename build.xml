@@ -6,7 +6,8 @@
     <property name="symfony.env" value="dev" />
     <property name="project.storage.dir" value="${project.basedir}/storage" />
 
-    <property file=".env" prefix="docker-compose"/>
+    <property environment="env" />
+    <property file=".env" prefix="docker-compose" />
 
     <target name="init" depends="database-deploy,storage-prepare">
         <echo message="${phing.project.name} Init - OK" />
@@ -47,9 +48,12 @@
     </target>
 
     <target name="database-ready" depends="which-nc" if="nc.exists">
-        <echo message="Waiting for a database..." />
+        <property name="env.ENV_database_host" value="${docker-compose.ENV_database_host}" override="false" />
+        <property name="env.ENV_database_port" value="${docker-compose.ENV_database_port}" override="false" />
+
+        <echo message="Waiting for a database on '${env.ENV_database_host}:${env.ENV_database_port}'..." />
         <retry retryCount="120" retryDelay="1">
-            <exec command="nc -z -v -w30 ${docker-compose.ENV_database_host} ${docker-compose.ENV_database_port}" passthru="true" checkreturn="true" />
+            <exec command="nc -z -v -w30 ${env.ENV_database_host} ${env.ENV_database_port}" passthru="true" checkreturn="true" />
         </retry>
         <echo message="Database is ready!" />
     </target>
