@@ -49,7 +49,7 @@
     <target name="database-ready" depends="which-nc" if="nc.exists">
         <echo message="Waiting for a database..." />
         <retry retryCount="120" retryDelay="1">
-            <exec command="nc -z -v -w30 ${docker-compose.ENV_database_host} ${docker-compose.ENV_database_port}" checkreturn="true" />
+            <exec command="nc -z -v -w30 ${docker-compose.ENV_database_host} ${docker-compose.ENV_database_port}" passthru="true" checkreturn="true" />
         </retry>
         <echo message="Database is ready!" />
     </target>
