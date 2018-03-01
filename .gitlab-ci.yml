@@ -113,6 +113,10 @@ stages:
           docker-compose stop nginx ;
           docker-compose up -d nginx ;
           echo "[$(date -R)] web-server is up"'
+    after_script:
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          cd '"$DEPLOY_DIRECTORY"' ;
+          docker-compose logs'
     tags:
       - executor-docker
 
