@@ -1,0 +1,4 @@
+framework:
+    session:
+        handler_id: session.handler.native_file
+        save_path: '/srv/storage/sessions'
