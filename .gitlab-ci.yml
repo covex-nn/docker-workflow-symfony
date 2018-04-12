@@ -67,7 +67,7 @@ stages:
     script:
       - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG .
+      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod .
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY

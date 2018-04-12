@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.4'
 
 services:
     nginx:
@@ -17,7 +17,8 @@ services:
     php:
         build:
             context: "."
-            dockerfile: Dockerfile-dev
+            dockerfile: Dockerfile
+            target: dev
         networks:
           - nw_internal
         env_file: .env
