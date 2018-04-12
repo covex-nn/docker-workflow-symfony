@@ -20,7 +20,7 @@ stages:
 
 .docker-compose-image: &docker-compose-image
     stage: pre-build
-    image: docker:latest
+    image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
@@ -34,7 +34,7 @@ stages:
 
 .docker-git-image: &docker-git-image
     stage: pre-build
-    image: docker:latest
+    image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
@@ -48,7 +48,7 @@ stages:
 
 .docker-nginx-image: &docker-nginx-image
     stage: build
-    image: docker:latest
+    image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
@@ -62,7 +62,7 @@ stages:
 
 .docker-app-image: &docker-app-image
     stage: build
-    image: docker:latest
+    image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
