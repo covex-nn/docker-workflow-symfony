@@ -1,7 +1,4 @@
 {
-    "cocur/slugify": {
-        "version": "v3.1"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -68,12 +65,6 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
-    "knplabs/knp-menu": {
-        "version": "2.3.0"
-    },
-    "knplabs/knp-menu-bundle": {
-        "version": "v2.2.1"
-    },
     "ocramius/proxy-manager": {
         "version": "2.2.0"
     },
@@ -92,59 +83,11 @@
     "psr/simple-cache": {
         "version": "1.0.1"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.0",
-            "ref": "aaddfdf43cdecd4cf91f992052d76c2cadc04543"
-        }
-    },
-    "sonata-project/admin-bundle": {
-        "version": "3.31",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.31",
-            "ref": "0e5931df1732e3dccfba42a20853049e5e9db6ae"
-        }
-    },
-    "sonata-project/block-bundle": {
-        "version": "3.12.1"
-    },
-    "sonata-project/cache": {
-        "version": "2.0.1"
-    },
-    "sonata-project/core-bundle": {
-        "version": "3.9",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.9",
-            "ref": "2f69bd1995730b73a5211a9707622fb25a925df7"
-        }
-    },
-    "sonata-project/datagrid-bundle": {
-        "version": "2.3.1"
-    },
-    "sonata-project/doctrine-orm-admin-bundle": {
-        "version": "3.5.1"
-    },
-    "sonata-project/exporter": {
-        "version": "1.8.0"
-    },
     "swiftmailer/swiftmailer": {
         "version": "v6.0.2"
     },
-    "symfony/asset": {
-        "version": "v4.0.8"
-    },
     "symfony/cache": {
         "version": "v4.0.8"
-    },
-    "symfony/class-loader": {
-        "version": "v3.4.8"
     },
     "symfony/config": {
         "version": "v4.0.8"
@@ -180,9 +123,6 @@
         "version": "v4.0.8"
     },
     "symfony/event-dispatcher": {
-        "version": "v4.0.8"
-    },
-    "symfony/expression-language": {
         "version": "v4.0.8"
     },
     "symfony/filesystem": {
@@ -260,9 +200,6 @@
     "symfony/security": {
         "version": "v4.0.8"
     },
-    "symfony/security-acl": {
-        "version": "v3.0.1"
-    },
     "symfony/security-bundle": {
         "version": "3.3",
         "recipe": {
@@ -325,15 +262,6 @@
     },
     "symfony/yaml": {
         "version": "v4.0.8"
-    },
-    "twig/extensions": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "4851df0afc426b8f07204379d21fca25b6df5d68"
-        }
     },
     "twig/twig": {
         "version": "v2.4.8"
