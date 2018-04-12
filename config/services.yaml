@@ -7,7 +7,7 @@ parameters:
     env(APP_SECRET): "%env(ENV_secret)%"
     env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
 
-    env(DATABASE_URL): "mysql://%env(ENV_database_user)%:%env(ENV_database_password)%@%env(ENV_database_host)%:%env(ENV_database_port)%/%env(ENV_database_name)%?charset=UTF8&serverVersion=%env(ENV_database_mysql_version)%"
+    env(DATABASE_URL): "mysql://%env(ENV_database_user)%:%env(ENV_database_password)%@%env(ENV_database_host)%:%env(ENV_database_port)%/%env(ENV_database_name)%"
     env(ENV_database_host): mysql
     env(ENV_database_port): 3306
     env(ENV_database_name): project
