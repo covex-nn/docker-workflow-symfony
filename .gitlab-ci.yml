@@ -1,10 +1,11 @@
-image: docker:latest
-
 variables:
     CI_APP_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
     CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
+    CI_DOCKER_COMPOSE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/docker-compose:$CI_COMMIT_REF_NAME"
+    CI_GIT_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/git:$CI_COMMIT_REF_NAME"
 
 stages:
+  - pre-build
   - build
   - test
   - deploy
@@ -16,6 +17,34 @@ stages:
       - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
           echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
         done
+
+.docker-compose-image: &docker-compose-image
+    stage: pre-build
+    image: docker:latest
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-git-image: &docker-git-image
+    stage: pre-build
+    image: docker:latest
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_GIT_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
 
 .docker-nginx-image: &docker-nginx-image
     stage: build
@@ -48,7 +77,7 @@ stages:
 
 .docker-compose: &docker-compose
     stage: build
-    image: covex/docker-compose:1.0
+    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
@@ -66,7 +95,7 @@ stages:
 
 .phpunit: &phpunit
     stage: test
-    image: covex/docker-compose:1.0
+    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
     <<: *suffix-vars
     variables:
         ENV_SUFFIX: "_TEST"
@@ -85,7 +114,7 @@ stages:
 
 .secure-copy: &secure-copy
     stage: deploy
-    image: covex/alpine-git:1.0
+    image: $CI_GIT_IMAGE_WITH_TAG
     before_script:
       - eval $(ssh-agent -s)
       - ssh-add <(echo "$SSH_PRIVATE_KEY")
@@ -136,6 +165,16 @@ stages:
     except:
       - branches
 
+pre-build:docker-compose-image-master:
+    <<: *docker-compose-image
+    <<: *env-master
+    <<: *job-policy-master
+
+pre-build:docker-git-image-master:
+    <<: *docker-git-image
+    <<: *env-master
+    <<: *job-policy-master
+
 build:docker-nginx-image-master:
     <<: *docker-nginx-image
     <<: *env-master
@@ -164,6 +203,16 @@ deploy:secure-copy-master:
         name: staging
     dependencies:
       - build:docker-compose-master
+
+pre-build:docker-compose-image-production:
+    <<: *docker-compose-image
+    <<: *env-production
+    <<: *job-policy-production
+
+pre-build:docker-git-image-production:
+    <<: *docker-git-image
+    <<: *env-production
+    <<: *job-policy-production
 
 build:docker-nginx-image-production:
     <<: *docker-nginx-image
@@ -196,7 +245,7 @@ deploy:secure-copy-production:
 
 deploy:sync-project-forks:
     stage: deploy
-    image: covex/alpine-git:1.0
+    image: $CI_GIT_IMAGE_WITH_TAG
     before_script:
       - eval $(ssh-agent -s)
       - ssh-add <(echo "$SSH_PRIVATE_KEY")

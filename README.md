@@ -35,10 +35,6 @@ __Symfony для Docker__ включает в себя:
 
 * `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
 
-* [covex/docker-compose:1.0][11] - `docker-compose` внутри docker-контейнера
-
-* [covex/alpine-git:1.0][13] - Alpine Linux с установленными `bash`, `openssh-client` и `git`
-
 Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [doc](doc)
 
 [2]:  https://github.com/FriendsOfSymfony/FOSUserBundle
@@ -50,7 +46,5 @@ __Symfony для Docker__ включает в себя:
 [8]:  https://about.gitlab.com/features/gitlab-ci-cd/
 [9]:  https://docs.docker.com/
 [10]: https://docs.docker.com/compose/
-[11]: https://hub.docker.com/r/covex/docker-compose/
 [12]: https://hub.docker.com/r/covex/php7.2-fpm/
-[13]: https://hub.docker.com/r/covex/alpine-git/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
