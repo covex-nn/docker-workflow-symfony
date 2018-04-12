@@ -18,18 +18,14 @@ __Symfony для Docker__ включает в себя:
 
 * `nginx:mainline`
 
-* [covex/php7.2-fpm:latest][12]
+* `php:7.2-fpm-stretch`
 
     PHP-FPM с установленными модулями `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`.
-    `xdebug` установлен, но включён только в локальном окружении разработчика
+    `xdebug` установливается только в локальном окружении разработчика
 
     Установлен `acl` для правильной установки [прав доступа к файлам][14]
 
-    Установлен и настроен `composer`. Папка `vendor` находится внутри контейнера и не оказывает влияние на быстродействие в локальном окружении разработчика
-
     Установлен `cron` для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab`
-
-    Для функционирования функции `autocomplete` в IDE код папки `vendor` синхронизируется с хостом в виде `phar` архивов
 
 * `mysql:5.7`
 
@@ -46,5 +42,4 @@ __Symfony для Docker__ включает в себя:
 [8]:  https://about.gitlab.com/features/gitlab-ci-cd/
 [9]:  https://docs.docker.com/
 [10]: https://docs.docker.com/compose/
-[12]: https://hub.docker.com/r/covex/php7.2-fpm/
 [14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd

@@ -48,7 +48,7 @@
     192.168.99.100		docker.local
     192.168.99.100		mysql
     ```
-    
+
     где `192.168.99.100` - это IP адрес из переменной `DOCKER_HOST`
 
 5. Запуск проекта в Docker
@@ -57,20 +57,32 @@
  
     `C:\Users\Пользователь\Docker> git clone git@github.com:covex-nn/docker-workflow-symfony.git`
 
-    Запустить `docker-compose` и инициализировать проект
+    Запустить `docker-compose`, встроенный в PHP web-server и инициализировать проект
     
     ```
     cd docker-workflow-symfony
     docker-compose up -d
-    docker-compose exec php phing    
+    php -S localhost:80 -t public
+    composer install
+    phing    
     ```
     
-    Сайт проекта будет доступен по адресу http://docker.local/
+    Сайт проекта будет доступен по адресу http://localhost/
+
+    Также можно использовать Nginx, аналогичный тому, что используется в `production`.
+    Для этого нужно скопировать `docker-compose.override.yml.dist` в `docker-compose.override.yml` и выполнить команды:
+    
+    ```
+    cd docker-workflow-symfony
+    docker-compose up -d
+    composer install
+    docker-compose exec php phing    
+    ```
 
 6. Установка [Webpack Encore][2]
 
     ```
-    docker-compose exec php composer require webpack-encore
+    composer require webpack-encore
     ```
 
     Установите [Nodejs][3], а затем [пакетный менеджер yarn][4]

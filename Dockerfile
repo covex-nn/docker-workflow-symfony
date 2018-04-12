@@ -30,18 +30,14 @@ FROM base AS dev
 ENV APP_ENV="dev"
 ENV APP_DEBUG="1"
 
-COPY docker/php/sync-vendor.php /usr/local/bin/sync-vendor
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && chmod 644 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && chmod +x /usr/local/bin/sync-vendor \
     && adduser --system --no-create-home --uid 1000 --gid 50 docker \
     && mkdir -p /tmp/sessions \
     && chmod -R 777 /tmp/sessions
-
-VOLUME [ "/composer/home/cache" ]
 
 
 

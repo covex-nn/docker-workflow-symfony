@@ -6,8 +6,6 @@ services:
           context: ./docker/nginx/
         ports:
           - "80:80"
-        networks:
-          - nw_internal
         depends_on:
           - php
         volumes:
@@ -19,8 +17,6 @@ services:
             context: "."
             dockerfile: Dockerfile
             target: dev
-        networks:
-          - nw_internal
         env_file: .env
         depends_on:
           - mysql
@@ -28,14 +24,5 @@ services:
           - .:/srv
           - /composer/home
 
-    mysql:
-        ports:
-            - "3306:3306"
-        networks:
-          - nw_internal
-
 volumes:
     assets:
-
-networks:
-    nw_internal:

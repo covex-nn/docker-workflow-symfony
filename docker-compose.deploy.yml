@@ -7,8 +7,6 @@ services:
           - 80
         networks:
             nw_internal:
-            nw_external:
-                ipv4_address: ${NETWORK_IP}
         depends_on:
             - mysql
         volumes:
@@ -36,17 +34,25 @@ services:
         << : *php-service
 
     mysql:
+        image: mysql:5.7
+        expose:
+          - 3306
+        environment:
+            MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
+            MYSQL_DATABASE: "${ENV_database_name}"
+            MYSQL_USER: "${ENV_database_user}"
+            MYSQL_PASSWORD: "${ENV_database_password}"
         networks:
           - nw_internal
+        volumes:
+          - database:/var/lib/mysql
         restart: always
 
 volumes:
+    database:
     assetsWebA:
     assetsWebB:
     assetsStorage:
 
 networks:
-    nw_external:
-        external:
-            name: ${NETWORK_NAME}
     nw_internal:

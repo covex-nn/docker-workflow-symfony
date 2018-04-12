@@ -14,14 +14,13 @@ env:
         - CI_NGINX_IMAGE_WITH_TAG=nginx_image
         - CI_APP_IMAGE_WITH_TAG=app_image
         - SERVER_NAME=docker.local
-        - NETWORK_NAME=graynetwork
         - DOCKER_COMPOSE_VERSION=1.17.1
         - DOCKER_PHP=true
 
 matrix:
     include:
-        - env: DOCKER_ENV="local" NETWORK_IP="127.0.0.1" DOCKER_SERVICES=(mysql) DOCKER_PHP=false SERVER_NAME=localhost ENV_database_host="127.0.0.1"
-        - env: DOCKER_ENV="remote" NETWORK_IP="192.168.10.2" DOCKER_SERVICES=(nginx mysql php spare)
+        - env: DOCKER_ENV="local" DOCKER_SERVICES=(mysql) DOCKER_PHP=false SERVER_NAME=localhost ENV_database_host="127.0.0.1"
+        - env: DOCKER_ENV="remote" DOCKER_SERVICES=(nginx mysql php spare)
 
 before_install:
     - if [ $COMPOSER_GITHUB_TOKEN ]; then
@@ -54,11 +53,10 @@ before_script:
           fi;
       fi
     - if [[ $DOCKER_ENV == 'remote' ]]; then
-          docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24;
           mkdir build;
           docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx;
           docker build --tag $CI_APP_IMAGE_WITH_TAG .;
-          docker-compose -f docker-compose.yml -f docker-compose.deploy.yml config > build/docker-compose.yml;
+          docker-compose -f docker-compose.deploy.yml config > build/docker-compose.yml;
           cd build;
           cat docker-compose.yml;
           docker-compose up -d;
