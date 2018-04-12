@@ -2,6 +2,7 @@
 /auth.json
 /bin/.phpunit
 /build/
+/docker-compose.override.yml
 /node_modules
 /public/bundles/
 /public/upload

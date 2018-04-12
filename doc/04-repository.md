@@ -19,10 +19,8 @@
 | -------- | ------ |
 |COMPOSER_GITHUB_TOKEN|Создать токен на странице https://github.com/settings/tokens|
 |SSH_PRIVATE_KEY|заполнить её содержимым файла id_rsa пользователя `master`|
-|NETWORK_NAME_MASTER|graynetwork|
 |SERVER_NAME_MASTER|site-staging.ru|
 |NETWORK_IP_MASTER|выбрать свободный IP в подсети graynetwork|
-|NETWORK_NAME_PRODUCTION|graynetwork|
 |SERVER_NAME_PRODUCTION|site-production.ru|
 |NETWORK_IP_PRODUCTION|выбрать свободный IP в подсети graynetwork|
 |DEPLOY_USER_MASTER|master|
@@ -60,7 +58,6 @@
 | -------- | ------ |
 |COMPOSER_GITHUB_TOKEN|Создать токен на странице https://github.com/settings/tokens|
 |SSH_PRIVATE_KEY|заполнить её содержимым файла id_rsa пользователя `dev1`|
-|NETWORK_NAME_MASTER|graynetwork|
 |SERVER_NAME_MASTER|site-dev1.ru|
 |NETWORK_IP_MASTER|выбрать свободный IP в подсети graynetwork|
 |DEPLOY_USER_MASTER|dev|

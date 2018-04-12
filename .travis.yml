@@ -13,15 +13,13 @@ env:
         - secure: "bVSEkJFCQ4xuL4Lxs7CS78Pfj9EeFkgDAd39m/8RRSg2WoPQ9ghQTLLsJ18xN9agGkGL30VeDxZT2txxcrx2JD2NIkA/sAQxLKM5aW8VVrhO4pRpswipK2ffhl6GrHzj2MzxU18R3txRnOu5xrkV4pLMVhqGverM8PgTfXdONPvU6mD9MB0xO5wi7LiVB0+Yx3Mav7VolWvjsGW1SolB7Ib/aGUOhd7E/uSzTNP/u8w/ZUt1yDVw1ZnHPPHTXaDdlv7KF1BA4+ugmTF9Jc4DJ0GYi/kV5wEG7nTP3sMSeq4F2UxT2rX3v93Hin2XNHE417VyEb79D5zQ8vBWOa9hky3kxDNqCGM37xJhv4RsSGHtukZYxEroMHJ22bHxM38DVvkhQ3qp6r4P46pXx9FFirfph+x2PJxOSsRCiQ5+/I/ke9ZQSzsx1PgXnn2645nWfcJymEa5ojg1K1o2eQSXgl5fIZ3bYTktEQrxK3L40TYnBeYIcTEmbT4NUp4G6Yft6YPTCSbgS8sf7e3lfMBY9a9YZtUY1sLgj8oMQnmfw58P4zO9PFVrODvOpZ1CBGSMJQ6HI9ULSNZ3sC0PwZDOqx4CAOHcwBNzyXx97rQi1f3J4rqI0aqmArpBosuXKsyyU2J1dO479L/JJZ7/A97XjIKUBcwBxo/CJHj9JOV9NEg="
         - CI_NGINX_IMAGE_WITH_TAG=nginx_image
         - CI_APP_IMAGE_WITH_TAG=app_image
-        - SERVER_NAME=docker.local
-        - NETWORK_NAME=graynetwork
         - DOCKER_COMPOSE_VERSION=1.17.1
-        - DOCKER_PHP=true
 
 matrix:
     include:
-        - env: DOCKER_ENV="local" NETWORK_IP="127.0.0.1" DOCKER_SERVICES=(mysql) DOCKER_PHP=false SERVER_NAME=localhost ENV_database_host="127.0.0.1"
-        - env: DOCKER_ENV="remote" NETWORK_IP="192.168.10.2" DOCKER_SERVICES=(nginx mysql php spare)
+        - env: DOCKER_ENV="local" DOCKER_SERVICES=(mysql) ENV_database_host="127.0.0.1"
+        - env: DOCKER_ENV="local_docker" DOCKER_SERVICES=(nginx mysql php)
+        - env: DOCKER_ENV="remote" DOCKER_SERVICES=(nginx mysql php spare)
 
 before_install:
     - if [ $COMPOSER_GITHUB_TOKEN ]; then
@@ -36,29 +34,29 @@ install:
     - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
     - chmod +x docker-compose
     - sudo mv docker-compose /usr/local/bin
-    - if [[ $DOCKER_PHP == false ]]; then
+    - if [ $DOCKER_ENV == 'local' ] || [ $DOCKER_ENV == 'local_docker' ]; then
           wget "https://www.phing.info/get/phing-latest.phar" --output-document="${HOME}/bin/phing";
           chmod u+x "${HOME}/bin/phing";
       fi
 
 before_script:
-    - if [[ $DOCKER_ENV == 'local' ]]; then
-          sudo service mysql stop;
+    - sudo service mysql stop;
+    - if [ $DOCKER_ENV == 'local' ]; then
           docker-compose up -d;
-          if [[ $DOCKER_PHP == false ]]; then
-              composer install;
-              phing;
-          else
-              docker-compose exec -T php composer install;
-              docker-compose exec -T php phing;
-          fi;
+          composer install;
+          phing;
       fi
-    - if [[ $DOCKER_ENV == 'remote' ]]; then
-          docker network create $NETWORK_NAME --gateway 192.168.10.1 --subnet 192.168.10.0/24;
+    - if [ $DOCKER_ENV == 'local_docker' ]; then
+          cp docker-compose.override.yml.dist docker-compose.override.yml;
+          docker-compose up -d;
+          composer install;
+          docker-compose exec -T php phing;
+      fi
+    - if [ $DOCKER_ENV == 'remote' ]; then
           mkdir build;
-          docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx;
+          docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_upstream=prod ./docker/nginx;
           docker build --tag $CI_APP_IMAGE_WITH_TAG .;
-          docker-compose -f docker-compose.yml -f docker-compose.deploy.yml config > build/docker-compose.yml;
+          docker-compose -f docker-compose.deploy.yml config > build/docker-compose.yml;
           cd build;
           cat docker-compose.yml;
           docker-compose up -d;
@@ -73,10 +71,10 @@ before_script:
       fi
 
 script:
-    - if [[ $DOCKER_ENV == 'local' ]]; then
+    - if [ $DOCKER_ENV == 'local' ]; then
           bin/phpunit;
       fi
-    - if [[ $DOCKER_ENV == 'remote' ]]; then
+    - if [ $DOCKER_ENV == 'local_docker' ] || [ $DOCKER_ENV == 'remote' ]; then
           docker-compose exec -T php curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar;
           docker-compose exec -T php php phpunit.phar;
       fi
