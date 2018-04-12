@@ -1,20 +1,13 @@
-Symfony для Docker
-==================
+Docker для Symfony Flex
+=======================
 
-__Symfony для Docker__ - это шаблон приложения для разработки с использованием [Docker][9] и [docker-compose][10]
+__Docker для Symfony__ - это шаблон Flex приложения для разработки с использованием [Docker][2] и [docker-compose][3]
 
-__Symfony для Docker__ - это набор процедур непрерывной интеграции/внедрения
-изменений через [GitLab CI/CD Pipelines][8] от локального окружения разработчика
+__Docker для Symfony__ - это набор процедур непрерывной интеграции/внедрения
+изменений через [GitLab CI/CD Pipelines][1] от локального окружения разработчика
 до production с практически нулевым deployment downtime.
 
-__Symfony для Docker__ включает в себя:
-
-* PHP 7.2 
-* [FOSUserBundle][2]
-* [SonataAdminBundle][3]
-* Базовый twig-шаблон с подключёнными [Bootstrap][6] и [Jquery][7] в `templates/base.html.twig`
-
-Вместе с __Symfony для Docker__ на разных этапах используются следующие образы Docker  
+Вместе с __Docker для Symfony__ на разных этапах используются следующие образы Docker
 
 * `nginx:mainline`
 
@@ -23,7 +16,7 @@ __Symfony для Docker__ включает в себя:
     PHP-FPM с установленными модулями `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`.
     `xdebug` установливается только в локальном окружении разработчика
 
-    Установлен `acl` для правильной установки [прав доступа к файлам][14]
+    Установлен `acl` для правильной установки [прав доступа к файлам][4]
 
     Установлен `cron` для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab`
 
@@ -31,15 +24,9 @@ __Symfony для Docker__ включает в себя:
 
 * `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
 
-Инструкция по установке, настройке и использованию __Symfony для Docker__ находится в директории [doc](doc)
+Инструкция по установке, настройке и использованию __Docker для Symfony Flex__ находится в директории [doc](doc)
 
-[2]:  https://github.com/FriendsOfSymfony/FOSUserBundle
-[3]:  https://github.com/sonata-project/SonataAdminBundle
-[4]:  http://symfony.com/doc/current/frontend.html
-[5]:  https://yarnpkg.com/
-[6]:  https://www.npmjs.com/package/bootstrap
-[7]:  https://www.npmjs.com/package/jquery
-[8]:  https://about.gitlab.com/features/gitlab-ci-cd/
-[9]:  https://docs.docker.com/
-[10]: https://docs.docker.com/compose/
-[14]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
+[1]:  https://about.gitlab.com/features/gitlab-ci-cd/
+[2]:  https://docs.docker.com/
+[3]: https://docs.docker.com/compose/
+[4]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd

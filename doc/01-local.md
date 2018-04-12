@@ -53,29 +53,25 @@
 
 5. Запуск проекта в Docker
 
-    Внутри папки пользователя (обязательно), например в `C:\Users\Пользователь\Docker` клонировать или скачать репозиторий проекта
+    Внутри папки пользователя (обязательно), например в `C:\Users\Пользователь\Docker` создать новый проект:
  
-    `C:\Users\Пользователь\Docker> git clone git@github.com:covex-nn/docker-workflow-symfony.git`
+    `C:\Users\Пользователь\Docker> composer create-project covex-nn/docker-symfony .`
 
     Запустить `docker-compose`, встроенный в PHP web-server и инициализировать проект
     
     ```
-    cd docker-workflow-symfony
     docker-compose up -d
     php -S localhost:80 -t public
-    composer install
     phing    
     ```
     
     Сайт проекта будет доступен по адресу http://localhost/
 
-    Также можно использовать Nginx, аналогичный тому, что используется в `production`.
+    Также, вместе с Docker, можно использовать Nginx и PHP, аналогичные тому, что используется в `production`.
     Для этого нужно скопировать `docker-compose.override.yml.dist` в `docker-compose.override.yml` и выполнить команды:
     
     ```
-    cd docker-workflow-symfony
     docker-compose up -d
-    composer install
     docker-compose exec php phing    
     ```
 
