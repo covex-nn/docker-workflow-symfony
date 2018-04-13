@@ -8,7 +8,6 @@ COPY --from=composer:1.5 /usr/bin/composer /usr/bin/composer
 RUN apt-get update && apt-get install -y \
             libicu-dev \
             zlib1g-dev \
-            acl \
             cron \
             netcat \
     && docker-php-ext-install -j$(nproc) \
@@ -62,10 +61,6 @@ ADD . ./
 
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
-    && chmod 755 docker/php/start.sh \
     && composer dump-autoload --no-dev --optimize \
     && phing app-deploy -Dsymfony.env=prod \
     && cat docker/php/app.crontab > /var/spool/cron/crontabs/root
-
-ENTRYPOINT [ "/srv/docker/php/start.sh" ]
-CMD [ "php-fpm" ]
