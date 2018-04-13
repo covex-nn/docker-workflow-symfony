@@ -1,9 +1,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: "%env(ENV_locale)%"
-    env(ENV_locale): en
-
     env(APP_SECRET): "%env(ENV_secret)%"
     env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
 
@@ -13,7 +10,6 @@ parameters:
     env(ENV_database_name): project
     env(ENV_database_user): project
     env(ENV_database_password): project
-    env(ENV_database_mysql_version): "5.7"
 
     env(MAILER_URL): null://localhost
     env(MAILER_FROM_NAME): "No-reply"
