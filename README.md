@@ -1,32 +1,45 @@
-Docker для Symfony Flex
+Docker for Symfony Flex
 =======================
 
-__Docker для Symfony__ - это шаблон Flex приложения для разработки с использованием [Docker][2] и [docker-compose][3]
+This repository is a skeleton of `Symfony Flex` application for development and deployment with `docker-compose`.
+It contains a set of [GitLab CI/CD Pipeline][1] procedures for almost zero deployment downtime.
 
-__Docker для Symfony__ - это набор процедур непрерывной интеграции/внедрения
-изменений через [GitLab CI/CD Pipelines][1] от локального окружения разработчика
-до production с практически нулевым deployment downtime.
-
-Вместе с __Docker для Symfony__ на разных этапах используются следующие образы Docker
+Only trusted base docker images are used at all stages from development to production: 
 
 * `nginx:mainline`
-
 * `php:7.2-fpm-stretch`
-
-    PHP-FPM с установленными модулями `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`.
-    `xdebug` установливается только в локальном окружении разработчика
-
-    Установлен `acl` для правильной установки [прав доступа к файлам][4]
-
-    Установлен `cron` для запуска периодических задач. Задачи должны быть описаны в файле `docker/php/app.crontab`
-
 * `mysql:5.7`
+* `phpmyadmin/phpmyadmin`
 
-* `phpmyadmin/phpmyadmin` - используется для досупа к БД в локальном окружении разработчика
+Use `composer` to create a new Symfony Flex application:
 
-Инструкция по установке, настройке и использованию __Docker для Symfony Flex__ находится в директории [doc](doc)
+```bash
+composer create-project covex-nn/docker-symfony .
+```
 
-[1]:  https://about.gitlab.com/features/gitlab-ci-cd/
-[2]:  https://docs.docker.com/
-[3]: https://docs.docker.com/compose/
-[4]: https://symfony.com/doc/current/setup/file_permissions.html#using-acl-on-a-system-that-supports-setfacl-linux-bsd
+To initialize and run a new application with `PHP-builtin web-server` use following commands (only `MySQL` and
+`phpMyAdmin` will be started with `docker-compose`):
+
+```bash
+docker-compose up -d
+phing
+php -S localhost:80 -t public
+```
+
+To initialize application and run `nginx` and `php-fpm` inside docker use following commands:
+
+```bash
+cp docker-compose.override.yml.dist docker-compose.override.yml
+docker-compose up -d
+docker-compose exec php phing    
+```
+
+Endpoint image for container with `php-fpm`, built with [Dockerfile](Dockerfile), contains:
+
+* PHP extensions `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache` и `xdebug` (for dev-environment only)
+* `cron` (for prod-environment only). Add your crontab jobs to `docker/php/app.crontab`
+
+Also visit [wiki][2] to review complete instructions for installation and configuration    
+
+[1]: https://about.gitlab.com/features/gitlab-ci-cd/
+[2]: https://github.com/covex-nn/docker-workflow-symfony/wiki
