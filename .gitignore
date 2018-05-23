@@ -1,9 +1,8 @@
-/.sync
+.phpunit
 /auth.json
-/bin/.phpunit
 /build/
 /docker-compose.override.yml
-/node_modules
+/phpunit.xml
 /public/bundles/
 /public/upload
 /storage
