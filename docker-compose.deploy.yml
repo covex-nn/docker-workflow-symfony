@@ -1,0 +1,58 @@
+version: '3.4'
+
+services:
+    nginx:
+        image: "${CI_NGINX_IMAGE_WITH_TAG}"
+        ports:
+          - 80
+        networks:
+            nw_internal:
+        depends_on:
+            - mysql
+        volumes:
+          - "assetsWebA:/srv/a:ro"
+          - "assetsWebB:/srv/b:ro"
+          - "assetsStorage:/srv/storage:ro"
+        restart: always
+        labels:
+            docker-gen.host: ${SERVER_NAME}
+
+    php: &php-service
+        image: "${CI_APP_IMAGE_WITH_TAG}"
+        networks:
+          - nw_internal
+        env_file: .env
+        environment:
+            TRUSTED_PROXIES: "0.0.0.0/0"
+        volumes:
+          - "assetsWebA:/srv/a:rw"
+          - "assetsWebB:/srv/b:rw"
+          - "assetsStorage:/srv/storage:rw"
+        restart: always
+
+    spare:
+        << : *php-service
+
+    mysql:
+        image: mysql:5.7
+        expose:
+          - 3306
+        environment:
+            MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
+            MYSQL_DATABASE: "${ENV_database_name}"
+            MYSQL_USER: "${ENV_database_user}"
+            MYSQL_PASSWORD: "${ENV_database_password}"
+        networks:
+          - nw_internal
+        volumes:
+          - database:/var/lib/mysql
+        restart: always
+
+volumes:
+    database:
+    assetsWebA:
+    assetsWebB:
+    assetsStorage:
+
+networks:
+    nw_internal:

@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+    mysql:
+        image: mysql:5.7
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
+            MYSQL_DATABASE: "${ENV_database_name}"
+            MYSQL_USER: "${ENV_database_user}"
+            MYSQL_PASSWORD: "${ENV_database_password}"
+        volumes:
+          - database:/var/lib/mysql
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+          - 8080:80
+        environment:
+            PMA_ARBITRARY: "1"
+            PMA_HOST: "mysql"
+            PMA_USER: "root"
+            PMA_PASSWORD: "${ENV_database_root_password}"
+        volumes:
+          - /sessions
+
+volumes:
+    database:

@@ -1,0 +1,260 @@
+variables:
+    CI_APP_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
+    CI_DOCKER_COMPOSE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/docker-compose:$CI_COMMIT_REF_NAME"
+    CI_GIT_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/git:$CI_COMMIT_REF_NAME"
+
+stages:
+  - pre-build
+  - build
+  - test
+  - deploy
+
+.suffix-vars: &suffix-vars
+    before_script:
+      - cat .env | grep ENV_ > .build-env
+      - sed -i 's/^/export /' .build-env
+      - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
+          echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
+        done
+
+.docker-compose-image: &docker-compose-image
+    stage: pre-build
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-git-image: &docker-git-image
+    stage: pre-build
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_GIT_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-nginx-image: &docker-nginx-image
+    stage: build
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_NGINX_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-app-image: &docker-app-image
+    stage: build
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod .
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker push $CI_APP_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-compose: &docker-compose
+    stage: build
+    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - mkdir build
+      - docker-compose -f docker-compose.deploy.yml config > build/docker-compose.yml
+      - sed -i 's/\/builds\/'"$CI_PROJECT_NAMESPACE"'\/'"$CI_PROJECT_NAME"'/\./g' build/docker-compose.yml
+    artifacts:
+        untracked: true
+        name: "$CI_COMMIT_REF_NAME"
+        paths:
+          - build/
+    tags:
+      - executor-docker
+    dependencies: []
+
+.phpunit: &phpunit
+    stage: test
+    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+    <<: *suffix-vars
+    variables:
+        ENV_SUFFIX: "_TEST"
+    script:
+      - cd build
+      - docker-compose up -d php mysql
+      - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
+      - docker-compose exec -T php phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
+      - docker-compose exec -T php sh -c "curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar && php phpunit.phar"
+    after_script:
+      - cd build
+      - docker-compose logs
+      - docker-compose down -v
+    tags:
+      - executor-docker
+
+.secure-copy: &secure-copy
+    stage: deploy
+    image: $CI_GIT_IMAGE_WITH_TAG
+    before_script:
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    script:
+      - eval $(cat .build-env)
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          rm -rf '"$DEPLOY_DIRECTORY"'_tmp ;
+          mkdir -p '"$DEPLOY_DIRECTORY"'_tmp'
+      - scp -P 22 -r build/* ''"$DEPLOY_USER"'@'"$DEPLOY_HOST"':'"$DEPLOY_DIRECTORY"'_tmp'
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          if [ -d '"$DEPLOY_DIRECTORY"' ]; then rm -rf '"$DEPLOY_DIRECTORY"'; fi ;
+          mv '"$DEPLOY_DIRECTORY"'_tmp '"$DEPLOY_DIRECTORY"' ;
+          cd '"$DEPLOY_DIRECTORY"' ;
+          docker login -u gitlab-ci-token -p '"$CI_JOB_TOKEN"' '"$CI_REGISTRY"' ;
+          docker-compose pull ;
+          docker-compose up -d --no-recreate ;
+          docker-compose up -d --force-recreate --no-deps spare ;
+          docker-compose exec -T spare sh -c "cd /srv && rm -rf b/* && cp -a public/. b/ && rm -rf a/* && cp -a public/. a/" ;
+          docker-compose exec -T spare phing storage-prepare database-deploy -Dsymfony.env=prod ;
+          docker-compose up -d --force-recreate --no-deps php ;
+          docker-compose exec -T php cron'
+      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
+          cd '"$DEPLOY_DIRECTORY"' ;
+          echo "[$(date -R)] web-server is down" ;
+          docker-compose stop nginx ;
+          docker-compose up -d nginx ;
+          echo "[$(date -R)] web-server is up"'
+    tags:
+      - executor-docker
+
+.env-master: &env-master
+    variables:
+        ENV_SUFFIX: "_MASTER"
+
+.env-production: &env-production
+    variables:
+        ENV_SUFFIX: "_PRODUCTION"
+
+.job-policy-master: &job-policy-master
+    only:
+      - master
+    except:
+      - tags
+
+.job-policy-production: &job-policy-production
+    only:
+      - /^release-.*$/
+    except:
+      - branches
+
+pre-build:docker-compose-image-master:
+    <<: *docker-compose-image
+    <<: *env-master
+    <<: *job-policy-master
+
+pre-build:docker-git-image-master:
+    <<: *docker-git-image
+    <<: *env-master
+    <<: *job-policy-master
+
+build:docker-nginx-image-master:
+    <<: *docker-nginx-image
+    <<: *env-master
+    <<: *job-policy-master
+
+build:docker-app-image-master:
+    <<: *docker-app-image
+    <<: *env-master
+    <<: *job-policy-master
+
+build:docker-compose-master:
+    <<: *docker-compose
+    <<: *env-master
+    <<: *job-policy-master
+
+test:phpunit-master:
+    <<: *phpunit
+    <<: *job-policy-master
+    dependencies:
+      - build:docker-compose-master
+
+deploy:secure-copy-master:
+    <<: *secure-copy
+    <<: *job-policy-master
+    environment:
+        name: staging
+    dependencies:
+      - build:docker-compose-master
+
+pre-build:docker-compose-image-production:
+    <<: *docker-compose-image
+    <<: *env-production
+    <<: *job-policy-production
+
+pre-build:docker-git-image-production:
+    <<: *docker-git-image
+    <<: *env-production
+    <<: *job-policy-production
+
+build:docker-nginx-image-production:
+    <<: *docker-nginx-image
+    <<: *env-production
+    <<: *job-policy-production
+
+build:docker-app-image-production:
+    <<: *docker-app-image
+    <<: *env-production
+    <<: *job-policy-production
+
+build:docker-compose-production:
+    <<: *docker-compose
+    <<: *env-production
+    <<: *job-policy-production
+
+test:phpunit-production:
+    <<: *phpunit
+    <<: *job-policy-production
+    dependencies:
+      - build:docker-compose-production
+
+deploy:secure-copy-production:
+    <<: *secure-copy
+    <<: *job-policy-production
+    environment:
+        name: production
+    dependencies:
+      - build:docker-compose-production
+
+deploy:sync-project-forks:
+    stage: deploy
+    image: $CI_GIT_IMAGE_WITH_TAG
+    before_script:
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    script:
+      - git branch -d stable || true
+      - git checkout -b stable
+      - for FORK in $PROJECT_FORKS; do git remote add fork $FORK && git push fork stable && git remote rm fork; done
+    only:
+      - master
+    dependencies: []
+    tags:
+      - executor-docker

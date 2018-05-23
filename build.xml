@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<project name="Docker Symfony App" default="init" basedir=".">
+    <property name="symfony.console" value="bin/console" />
+    <property name="symfony.env" value="dev" />
+    <property name="project.storage.dir" value="${project.basedir}/storage" />
+    <property file=".env" prefix="docker-compose" />
+
+    <target name="init" depends="database-deploy,storage-prepare">
+        <echo message="${phing.project.name} Init - OK" />
+    </target>
+
+    <target name="app-deploy">
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} cache:clear --env=${symfony.env} --no-warmup" />
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} cache:warmup --env=${symfony.env}" />
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} assets:install --env=${symfony.env} public" />
+
+        <echo message="${phing.project.name} AppDeploy - OK" />
+    </target>
+
+    <target name="database-deploy" depends="database-ready">
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} doctrine:cache:clear-metadata --env=${symfony.env}" />
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} doctrine:schema:update --env=${symfony.env} --force --no-interaction" />
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} doctrine:migrations:status --env=${symfony.env}" />
+        <exec passthru="true" checkreturn="true"
+              command="php ${symfony.console} doctrine:migrations:migrate --env=${symfony.env} --no-interaction --allow-no-migration" />
+
+        <echo message="${phing.project.name} DatabaseDeploy - OK" />
+    </target>
+
+    <target name="storage-prepare">
+        <mkdir dir="${project.storage.dir}/upload" />
+        <chown file="${project.storage.dir}/upload" user="www-data" group="www-data" failonerror="false" />
+
+        <mkdir dir="${project.storage.dir}/sessions" />
+        <chown file="${project.storage.dir}/sessions" user="www-data" group="www-data" failonerror="false" />
+    </target>
+
+    <target name="database-ready" depends="which-nc" if="nc.exists">
+        <property name="env.ENV_database_host" value="${docker-compose.ENV_database_host}" override="false" />
+        <property name="env.ENV_database_port" value="${docker-compose.ENV_database_port}" override="false" />
+
+        <echo message="Waiting for a database on '${env.ENV_database_host}:${env.ENV_database_port}'..." />
+        <retry retryCount="120" retryDelay="1">
+            <exec command="nc -z -v -w30 ${env.ENV_database_host} ${env.ENV_database_port}" passthru="true" checkreturn="true" />
+        </retry>
+        <echo message="Database is ready!" />
+    </target>
+
+    <target name="which-nc">
+        <if>
+            <equals arg1="${host.os}" arg2="WINNT" />
+            <then>
+                <property name="which.path" value="where /Q" />
+            </then>
+            <else>
+                <property name="which.path" value="which" />
+            </else>
+        </if>
+        <exec command="${which.path} nc" outputProperty="nc.path" />
+        <if>
+            <not>
+                <equals arg1="${nc.path}" arg2=""></equals>
+            </not>
+            <then>
+                <property name="nc.exists" value="1" />
+            </then>
+        </if>
+    </target>
+</project>

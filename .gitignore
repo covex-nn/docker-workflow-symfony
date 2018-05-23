@@ -1,15 +1,9 @@
-
-###> symfony/framework-bundle ###
-.env
+.phpunit
+/auth.json
+/build/
+/docker-compose.override.yml
+/phpunit.xml
 /public/bundles/
-/var/
+/public/upload
+/storage
 /vendor/
-###< symfony/framework-bundle ###
-
-###> symfony/phpunit-bridge ###
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
-###< phpunit/phpunit ###
