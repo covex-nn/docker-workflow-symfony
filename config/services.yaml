@@ -1,19 +1,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    env(APP_SECRET): "%env(ENV_secret)%"
-    env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
-
-    env(DATABASE_URL): "mysql://%env(ENV_database_user)%:%env(ENV_database_password)%@%env(ENV_database_host)%:%env(ENV_database_port)%/%env(ENV_database_name)%"
-    env(ENV_database_host): mysql
-    env(ENV_database_port): 3306
-    env(ENV_database_name): project
-    env(ENV_database_user): project
-    env(ENV_database_password): project
-
-    env(MAILER_URL): null://localhost
-    env(MAILER_FROM_NAME): "No-reply"
-    env(MAILER_FROM_ADDRESS): "no-reply@docker.local"
 
 services:
     # default configuration for services in *this* file
