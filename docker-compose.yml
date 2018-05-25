@@ -6,10 +6,10 @@ services:
         ports:
             - "3306:3306"
         environment:
-            MYSQL_ROOT_PASSWORD: "${ENV_database_root_password}"
-            MYSQL_DATABASE: "${ENV_database_name}"
-            MYSQL_USER: "${ENV_database_user}"
-            MYSQL_PASSWORD: "${ENV_database_password}"
+            MYSQL_ROOT_PASSWORD: "root"
+            MYSQL_DATABASE: "db_name"
+            MYSQL_USER: "db_user"
+            MYSQL_PASSWORD: "db_password"
         volumes:
           - database:/var/lib/mysql
 
@@ -21,7 +21,7 @@ services:
             PMA_ARBITRARY: "1"
             PMA_HOST: "mysql"
             PMA_USER: "root"
-            PMA_PASSWORD: "${ENV_database_root_password}"
+            PMA_PASSWORD: "root"
         volumes:
           - /sessions
 

@@ -7,6 +7,6 @@ mv skeleton/** .
 mv skeleton/.* .
 rm -r skeleton .git
 mv .git-backup .git
-composer env:apply docker-compose
+composer env:apply docker-ci
 git checkout .env.dist
 git add .

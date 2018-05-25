@@ -1,10 +1,10 @@
 parameters:
     env(DATABASE_URL): ''
     env(ENV_database_host): mysql
-    env(ENV_database_name): project
-    env(ENV_database_password): project
+    env(ENV_database_name): db_name
+    env(ENV_database_password): db_password
     env(ENV_database_port): '3306'
-    env(ENV_database_user): project
+    env(ENV_database_user): db_user
 doctrine:
     dbal:
         driver: pdo_mysql

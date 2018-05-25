@@ -5,3 +5,5 @@ framework:
     php_errors:
         log: true
     cache: null
+parameters:
+    env(ENV_secret): ThisTokenIsNotSoSecretChangeIt
