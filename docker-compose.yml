@@ -11,19 +11,19 @@ services:
             MYSQL_USER: "db_user"
             MYSQL_PASSWORD: "db_password"
         volumes:
-          - database:/var/lib/mysql
+            - database:/var/lib/mysql
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         ports:
-          - 8080:80
+            - 8080:80
         environment:
             PMA_ARBITRARY: "1"
             PMA_HOST: "mysql"
             PMA_USER: "root"
             PMA_PASSWORD: "root"
         volumes:
-          - /sessions
+            - /sessions
 
 volumes:
     database:

@@ -3,14 +3,14 @@ version: '3.4'
 services:
     nginx:
         build:
-          context: ./docker/nginx/
+            context: ./docker/nginx/
         ports:
-          - "80:80"
+            - "80:80"
         depends_on:
-          - php
+            - php
         volumes:
-          - ./public:/srv/public
-          - ./storage/upload:/srv/storage/upload
+            - ./public:/srv/public
+            - ./storage/upload:/srv/storage/upload
 
     php:
         build:
@@ -19,10 +19,6 @@ services:
             target: dev
         env_file: .env
         depends_on:
-          - mysql
+            - mysql
         volumes:
-          - .:/srv
-          - /composer/home
-
-volumes:
-    assets:
+            - .:/srv

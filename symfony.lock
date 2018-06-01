@@ -128,7 +128,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "master",
             "version": "3.3",
-            "ref": "8a2f7fa50a528f0aad1d7a87ae3730c981b367ce"
+            "ref": "c0c0bf94174609d740ca2a61e0201949c5683d50"
         }
     },
     "symfony/http-foundation": {
