@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "966f68cf9e14fe9820b092b5a2e76c68",
+    "content-hash": "014bfbee6de72ab81f201aa586cb8f95",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -847,16 +847,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.6.0",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083"
+                "reference": "87ee409783a4a322b5597ebaae558661404055a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/374e7ace49d864dad8cddbc55346447c8a6a2083",
-                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/87ee409783a4a322b5597ebaae558661404055a7",
+                "reference": "87ee409783a4a322b5597ebaae558661404055a7",
                 "shasum": ""
             },
             "require": {
@@ -925,7 +925,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2017-12-20T00:38:15+00:00"
+            "time": "2018-02-27T07:30:56+00:00"
         },
         {
             "name": "jdorn/sql-formatter",
