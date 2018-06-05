@@ -13,7 +13,7 @@ Only trusted base docker images are used at all stages from development to produ
 * `phpmyadmin/phpmyadmin`
 
 This repository is a `symfony/skeleton` composer project, bootstrapped by
-[Environment configurator][3] by the following commands:
+[Environment configurator][2] by the following commands:
 
 ```bash
 composer global require covex-nn/environment
@@ -54,16 +54,18 @@ on your host, execute the following instead:
 ```bash
 cp docker-compose.override.yml.dist docker-compose.override.yml
 docker-compose up -d
-phing
+docker-compose exec php phing
 ```
 
-Endpoint image for container with `php-fpm`, built with [Dockerfile](Dockerfile), contains:
+Endpoint image for container with `php-fpm`, built with multi-stage [Dockerfile](Dockerfile),
+contains:
 
-* PHP extensions `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache` и `xdebug` (for dev-environment only)
-* `cron` (for prod-environment only). Add your crontab jobs to `docker/php/app.crontab`
+* PHP extensions `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`
+  and `xdebug` (for dev-environment only); uncomment lines to install `gd`
+* `cron` (for prod-environment only); add your crontab jobs to `docker/php/app.crontab`
 
-Also visit [wiki][2] to review complete instructions for installation and configuration:
+Also, `cache` and `log` directories are moved to a non-shared volume for dev-environmen
+with `volumes` section of [docker-compose.override.yml](docker-compose.override.yml.dist)
 
 [1]: https://about.gitlab.com/features/gitlab-ci-cd/
-[2]: https://github.com/covex-nn/docker-workflow-symfony/wiki
-[3]: https://github.com/covex-nn/env-configurator
+[2]: https://github.com/covex-nn/env-configurator
