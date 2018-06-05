@@ -10,11 +10,18 @@ RUN apt-get update && apt-get install -y \
             zlib1g-dev \
             cron \
             netcat \
+#            libfreetype6-dev \
+#            libjpeg62-turbo-dev \
+#            libpng-dev \
+#    && docker-php-ext-configure gd \
+#            --with-freetype-dir=/usr/include/ \
+#            --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
             intl \
             opcache \
             pdo_mysql \
             zip \
+#            gd \
     && curl -sS -L -o /usr/local/bin/phing http://www.phing.info/get/phing-latest.phar \
     && chmod +x /usr/local/bin/phing \
     && docker-php-source delete \
@@ -25,9 +32,6 @@ WORKDIR /srv
 
 
 FROM base AS dev
-
-ENV APP_ENV="dev"
-ENV APP_DEBUG="1"
 
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
