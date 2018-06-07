@@ -87,11 +87,11 @@ stages:
     script:
       - eval $(cat .build-env)
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --target prod --tag $CI_NGINX_IMAGE_WITH_TAG
+      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --target prod
           --build-arg server_name=$SERVER_NAME
           --build-arg server_upstream=prod
           --build-arg app_image=$CI_APP_IMAGE_WITH_TAG
-          ./docker/nginx
+          --file Dockerfile-nginx .
       - docker push $CI_NGINX_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
