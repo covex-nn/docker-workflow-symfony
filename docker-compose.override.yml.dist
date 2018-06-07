@@ -3,7 +3,8 @@ version: '3.4'
 services:
     nginx:
         build:
-            context: ./docker/nginx/
+            context: "."
+            dockerfile: Dockerfile-nginx
             target: base
         ports:
             - "80:80"
