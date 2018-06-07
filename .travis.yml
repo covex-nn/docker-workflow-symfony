@@ -54,14 +54,13 @@ before_script:
       fi
     - if [ $DOCKER_ENV == 'remote' ]; then
           mkdir build;
-          docker build --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_upstream=prod ./docker/nginx;
           docker build --tag $CI_APP_IMAGE_WITH_TAG .;
+          docker build --tag $CI_NGINX_IMAGE_WITH_TAG --target prod --build-arg server_upstream=prod --build-arg app_image=$CI_APP_IMAGE_WITH_TAG --file Dockerfile-nginx .;
           docker-compose -f docker-compose.deploy.yml config > build/docker-compose.yml;
           cd build;
           cat docker-compose.yml;
           docker-compose up -d;
           docker-compose up -d --force-recreate --no-deps spare;
-          docker-compose exec -T spare cp -a /srv/public/. /srv/a/;
           docker-compose exec -T spare phing app-deploy storage-prepare database-deploy -Dsymfony.env=prod;
           docker-compose up -d --force-recreate --no-deps php;
           docker-compose exec -T php cron;
