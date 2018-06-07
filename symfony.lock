@@ -51,7 +51,7 @@
         "version": "v1.0.1"
     },
     "doctrine/migrations": {
-        "version": "v1.7.2"
+        "version": "v1.8.1"
     },
     "doctrine/orm": {
         "version": "v2.6.1"

@@ -10,9 +10,7 @@ services:
         depends_on:
             - mysql
         volumes:
-          - "assetsWebA:/srv/a:ro"
-          - "assetsWebB:/srv/b:ro"
-          - "assetsStorage:/srv/storage:ro"
+          - "storage:/srv/storage:ro"
         restart: always
         labels:
             docker-gen.host: ${SERVER_NAME}
@@ -25,9 +23,7 @@ services:
         environment:
             TRUSTED_PROXIES: "0.0.0.0/0"
         volumes:
-          - "assetsWebA:/srv/a:rw"
-          - "assetsWebB:/srv/b:rw"
-          - "assetsStorage:/srv/storage:rw"
+          - "storage:/srv/storage:rw"
         restart: always
 
     spare:
@@ -50,9 +46,7 @@ services:
 
 volumes:
     database:
-    assetsWebA:
-    assetsWebB:
-    assetsStorage:
+    storage:
 
 networks:
     nw_internal:

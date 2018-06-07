@@ -4,6 +4,7 @@ services:
     nginx:
         build:
             context: ./docker/nginx/
+            target: base
         ports:
             - "80:80"
         depends_on:
