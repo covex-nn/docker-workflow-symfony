@@ -5,8 +5,9 @@ variables:
     CI_GIT_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/git:$CI_COMMIT_REF_NAME"
 
 stages:
-  - pre-build
-  - build
+  - build-tools
+  - build-app
+  - build-nginx
   - test
   - deploy
 
@@ -19,13 +20,13 @@ stages:
         done
 
 .docker-compose-image: &docker-compose-image
-    stage: pre-build
+    stage: build-tools
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
       - docker push $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -33,42 +34,28 @@ stages:
       - docker-in-docker
 
 .docker-git-image: &docker-git-image
-    stage: pre-build
+    stage: build-tools
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
       - docker push $CI_GIT_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
       - executor-docker
       - docker-in-docker
 
-.docker-nginx-image: &docker-nginx-image
-    stage: build
-    image: docker:stable
-    <<: *suffix-vars
-    script:
-      - eval $(cat .build-env)
-      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx
-      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker push $CI_NGINX_IMAGE_WITH_TAG
-      - docker logout $CI_REGISTRY
-    tags:
-      - executor-docker
-      - docker-in-docker
-
 .docker-app-image: &docker-app-image
-    stage: build
+    stage: build-app
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod .
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod .
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -76,7 +63,7 @@ stages:
       - docker-in-docker
 
 .docker-compose: &docker-compose
-    stage: build
+    stage: build-app
     image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
     <<: *suffix-vars
     script:
@@ -92,6 +79,24 @@ stages:
     tags:
       - executor-docker
     dependencies: []
+
+.docker-nginx-image: &docker-nginx-image
+    stage: build-nginx
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --target prod --tag $CI_NGINX_IMAGE_WITH_TAG
+          --build-arg server_name=$SERVER_NAME
+          --build-arg server_upstream=prod
+          --build-arg app_image=$CI_APP_IMAGE_WITH_TAG
+          ./docker/nginx
+      - docker push $CI_NGINX_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
 
 .phpunit: &phpunit
     stage: test
@@ -132,7 +137,6 @@ stages:
           docker-compose pull ;
           docker-compose up -d --no-recreate ;
           docker-compose up -d --force-recreate --no-deps spare ;
-          docker-compose exec -T spare sh -c "cd /srv && rm -rf b/* && cp -a public/. b/ && rm -rf a/* && cp -a public/. a/" ;
           docker-compose exec -T spare phing storage-prepare database-deploy -Dsymfony.env=prod ;
           docker-compose up -d --force-recreate --no-deps php ;
           docker-compose exec -T php cron'
@@ -165,28 +169,28 @@ stages:
     except:
       - branches
 
-pre-build:docker-compose-image-master:
+build-tools:docker-compose-image-master:
     <<: *docker-compose-image
     <<: *env-master
     <<: *job-policy-master
 
-pre-build:docker-git-image-master:
+build-tools:docker-git-image-master:
     <<: *docker-git-image
     <<: *env-master
     <<: *job-policy-master
 
-build:docker-nginx-image-master:
-    <<: *docker-nginx-image
-    <<: *env-master
-    <<: *job-policy-master
-
-build:docker-app-image-master:
+build-app:docker-app-image-master:
     <<: *docker-app-image
     <<: *env-master
     <<: *job-policy-master
 
-build:docker-compose-master:
+build-app:docker-compose-master:
     <<: *docker-compose
+    <<: *env-master
+    <<: *job-policy-master
+
+build-nginx:docker-nginx-image-master:
+    <<: *docker-nginx-image
     <<: *env-master
     <<: *job-policy-master
 
@@ -194,7 +198,7 @@ test:phpunit-master:
     <<: *phpunit
     <<: *job-policy-master
     dependencies:
-      - build:docker-compose-master
+      - build-app:docker-compose-master
 
 deploy:secure-copy-master:
     <<: *secure-copy
@@ -202,30 +206,30 @@ deploy:secure-copy-master:
     environment:
         name: staging
     dependencies:
-      - build:docker-compose-master
+      - build-app:docker-compose-master
 
-pre-build:docker-compose-image-production:
+build-tools:docker-compose-image-production:
     <<: *docker-compose-image
     <<: *env-production
     <<: *job-policy-production
 
-pre-build:docker-git-image-production:
+build-tools:docker-git-image-production:
     <<: *docker-git-image
     <<: *env-production
     <<: *job-policy-production
 
-build:docker-nginx-image-production:
-    <<: *docker-nginx-image
-    <<: *env-production
-    <<: *job-policy-production
-
-build:docker-app-image-production:
+build-app:docker-app-image-production:
     <<: *docker-app-image
     <<: *env-production
     <<: *job-policy-production
 
-build:docker-compose-production:
+build-app:docker-compose-production:
     <<: *docker-compose
+    <<: *env-production
+    <<: *job-policy-production
+
+build-nginx:docker-nginx-image-production:
+    <<: *docker-nginx-image
     <<: *env-production
     <<: *job-policy-production
 
@@ -233,7 +237,7 @@ test:phpunit-production:
     <<: *phpunit
     <<: *job-policy-production
     dependencies:
-      - build:docker-compose-production
+      - build-app:docker-compose-production
 
 deploy:secure-copy-production:
     <<: *secure-copy
@@ -241,7 +245,7 @@ deploy:secure-copy-production:
     environment:
         name: production
     dependencies:
-      - build:docker-compose-production
+      - build-app:docker-compose-production
 
 deploy:sync-project-forks:
     stage: deploy
