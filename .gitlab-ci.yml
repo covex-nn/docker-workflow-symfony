@@ -1,12 +1,13 @@
 variables:
     CI_APP_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    CI_SOURCE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/source:$CI_COMMIT_REF_NAME"
     CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
     CI_DOCKER_COMPOSE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/docker-compose:$CI_COMMIT_REF_NAME"
     CI_GIT_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/git:$CI_COMMIT_REF_NAME"
 
 stages:
-  - pre-build
-  - build
+  - build-step1
+  - build-step2
   - test
   - deploy
 
@@ -18,14 +19,29 @@ stages:
           echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
         done
 
-.docker-compose-image: &docker-compose-image
-    stage: pre-build
+.docker-source-image: &docker-source-image
+    stage: build-step1
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
+      - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_SOURCE_IMAGE_WITH_TAG --target source .
+      - docker push $CI_SOURCE_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
+.docker-compose-image: &docker-compose-image
+    stage: build-step1
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
       - docker push $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -33,42 +49,28 @@ stages:
       - docker-in-docker
 
 .docker-git-image: &docker-git-image
-    stage: pre-build
+    stage: build-step1
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
-      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
       - docker push $CI_GIT_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
       - executor-docker
       - docker-in-docker
 
-.docker-nginx-image: &docker-nginx-image
-    stage: build
-    image: docker:stable
-    <<: *suffix-vars
-    script:
-      - eval $(cat .build-env)
-      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --build-arg server_name=$SERVER_NAME --build-arg server_upstream=prod ./docker/nginx
-      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker push $CI_NGINX_IMAGE_WITH_TAG
-      - docker logout $CI_REGISTRY
-    tags:
-      - executor-docker
-      - docker-in-docker
-
 .docker-app-image: &docker-app-image
-    stage: build
+    stage: build-step2
     image: docker:stable
     <<: *suffix-vars
     script:
       - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
-      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod .
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod --build-arg source_image=$CI_SOURCE_IMAGE_WITH_TAG .
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -76,7 +78,7 @@ stages:
       - docker-in-docker
 
 .docker-compose: &docker-compose
-    stage: build
+    stage: build-step2
     image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
     <<: *suffix-vars
     script:
@@ -93,6 +95,24 @@ stages:
       - executor-docker
     dependencies: []
 
+.docker-nginx-image: &docker-nginx-image
+    stage: build-step2
+    image: docker:stable
+    <<: *suffix-vars
+    script:
+      - eval $(cat .build-env)
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --target prod
+          --build-arg server_name=$SERVER_NAME
+          --build-arg server_upstream=prod
+          --build-arg app_image=$CI_SOURCE_IMAGE_WITH_TAG
+          --file Dockerfile-nginx .
+      - docker push $CI_NGINX_IMAGE_WITH_TAG
+      - docker logout $CI_REGISTRY
+    tags:
+      - executor-docker
+      - docker-in-docker
+
 .phpunit: &phpunit
     stage: test
     image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
@@ -101,10 +121,10 @@ stages:
         ENV_SUFFIX: "_TEST"
     script:
       - cd build
-      - docker-compose up -d php mysql
-      - docker-compose exec -T php composer install --prefer-dist --no-scripts --no-interaction
-      - docker-compose exec -T php phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
-      - docker-compose exec -T php sh -c "curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar && php phpunit.phar"
+      - docker-compose up -d source mysql
+      - docker-compose exec -T source composer install --prefer-dist --no-scripts --no-interaction
+      - docker-compose exec -T source phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
+      - docker-compose exec -T source sh -c "curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar && php phpunit.phar"
     after_script:
       - cd build
       - docker-compose logs
@@ -130,14 +150,11 @@ stages:
           cd '"$DEPLOY_DIRECTORY"' ;
           docker login -u gitlab-ci-token -p '"$CI_JOB_TOKEN"' '"$CI_REGISTRY"' ;
           docker-compose pull ;
-          docker-compose up -d --no-recreate ;
+          docker-compose up -d --no-recreate nginx php spare mysql ;
           docker-compose up -d --force-recreate --no-deps spare ;
-          docker-compose exec -T spare sh -c "cd /srv && rm -rf b/* && cp -a public/. b/ && rm -rf a/* && cp -a public/. a/" ;
           docker-compose exec -T spare phing storage-prepare database-deploy -Dsymfony.env=prod ;
           docker-compose up -d --force-recreate --no-deps php ;
-          docker-compose exec -T php cron'
-      - ssh -p 22 $DEPLOY_USER@$DEPLOY_HOST 'set -e ;
-          cd '"$DEPLOY_DIRECTORY"' ;
+          docker-compose exec -T php cron ;
           echo "[$(date -R)] web-server is down" ;
           docker-compose stop nginx ;
           docker-compose up -d nginx ;
@@ -165,18 +182,18 @@ stages:
     except:
       - branches
 
-pre-build:docker-compose-image-master:
+build:docker-source-image-master:
+    <<: *docker-source-image
+    <<: *env-master
+    <<: *job-policy-master
+
+build:docker-compose-image-master:
     <<: *docker-compose-image
     <<: *env-master
     <<: *job-policy-master
 
-pre-build:docker-git-image-master:
+build:docker-git-image-master:
     <<: *docker-git-image
-    <<: *env-master
-    <<: *job-policy-master
-
-build:docker-nginx-image-master:
-    <<: *docker-nginx-image
     <<: *env-master
     <<: *job-policy-master
 
@@ -187,6 +204,11 @@ build:docker-app-image-master:
 
 build:docker-compose-master:
     <<: *docker-compose
+    <<: *env-master
+    <<: *job-policy-master
+
+build:docker-nginx-image-master:
+    <<: *docker-nginx-image
     <<: *env-master
     <<: *job-policy-master
 
@@ -204,18 +226,18 @@ deploy:secure-copy-master:
     dependencies:
       - build:docker-compose-master
 
-pre-build:docker-compose-image-production:
+build:docker-source-image-production:
     <<: *docker-compose-image
     <<: *env-production
     <<: *job-policy-production
 
-pre-build:docker-git-image-production:
-    <<: *docker-git-image
+build:docker-compose-image-production:
+    <<: *docker-compose-image
     <<: *env-production
     <<: *job-policy-production
 
-build:docker-nginx-image-production:
-    <<: *docker-nginx-image
+build:docker-git-image-production:
+    <<: *docker-git-image
     <<: *env-production
     <<: *job-policy-production
 
@@ -226,6 +248,11 @@ build:docker-app-image-production:
 
 build:docker-compose-production:
     <<: *docker-compose
+    <<: *env-production
+    <<: *job-policy-production
+
+build:docker-nginx-image-production:
+    <<: *docker-nginx-image
     <<: *env-production
     <<: *job-policy-production
 
