@@ -119,7 +119,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "master",
             "version": "1.0",
-            "ref": "cc1afd81841db36fbef982fe56b48ade6716fac4"
+            "ref": "e921bdbfe20cdefa3b82f379d1cd36df1bc8d115"
         }
     },
     "symfony/framework-bundle": {
@@ -128,7 +128,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "master",
             "version": "3.3",
-            "ref": "c0c0bf94174609d740ca2a61e0201949c5683d50"
+            "ref": "1279df12895f20d8076324036431833181eb6645"
         }
     },
     "symfony/http-foundation": {
