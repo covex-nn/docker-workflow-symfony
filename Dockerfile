@@ -37,6 +37,7 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /composer/home
 
 COPY --from=composer:1.6 /usr/bin/composer /usr/bin/composer
+COPY --from=jakzal/phpqa:1.9-alpine /usr/local/bin/phpunit /usr/local/bin/
 
 
 
