@@ -1,9 +1,5 @@
-FROM php:7.2-fpm-stretch AS base
-
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /composer/home
-
-COPY --from=composer:1.5 /usr/bin/composer /usr/bin/composer
+ARG source_image=scratch
+FROM php:7.2-fpm-stretch AS php
 
 RUN apt-get update && apt-get install -y \
             libicu-dev \
@@ -31,6 +27,19 @@ WORKDIR /srv
 
 
 
+FROM ${source_image} AS source_image
+
+
+
+FROM php AS base
+
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /composer/home
+
+COPY --from=composer:1.6 /usr/bin/composer /usr/bin/composer
+
+
+
 FROM base AS dev
 
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
@@ -44,27 +53,33 @@ RUN pecl install xdebug \
 
 
 
-FROM base AS prod
+FROM base AS source
 
 ENV APP_ENV="prod"
-ENV APP_DEBUG=""
 
-COPY composer.json ./
-COPY composer.lock ./
-COPY auth.json ./
+COPY composer.json composer.lock auth.json ./
 
-RUN composer install \
+RUN composer check-platform-reqs \
+    && composer install \
         --no-dev \
         --prefer-dist \
         --no-scripts \
-        --no-autoloader \
+        --optimize-autoloader \
         --no-interaction \
-    && rm -rf $COMPOSER_HOME/cache/*
+    && composer clear-cache
 
-ADD . ./
+COPY . .
 
 RUN chmod -R -x+X . \
     && chmod 755 bin/console \
-    && composer dump-autoload --no-dev --optimize \
-    && phing app-deploy -Dsymfony.env=prod \
-    && cat docker/php/app.crontab > /var/spool/cron/crontabs/root
+    && phing app-deploy -Dsymfony.env=prod
+
+
+
+FROM php AS prod
+
+ENV APP_ENV="prod"
+
+COPY --from=source_image /srv/ .
+
+RUN cat docker/php/app.crontab > /var/spool/cron/crontabs/root

@@ -29,6 +29,10 @@ services:
     spare:
         << : *php-service
 
+    source:
+        << : *php-service
+        image: "${CI_SOURCE_IMAGE_WITH_TAG}"
+
     mysql:
         image: mysql:5.7
         expose:
