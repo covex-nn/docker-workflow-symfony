@@ -6,6 +6,7 @@ variables:
     CI_GIT_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/git:$CI_COMMIT_REF_NAME"
 
 stages:
+  - qa
   - build-step1
   - build-step2
   - test
@@ -18,6 +19,12 @@ stages:
       - for name in `env | awk -F= '{if($1 ~ /'"$ENV_SUFFIX"'$/) print $1}'`; do
           echo 'export '`echo $name|awk -F''"$ENV_SUFFIX"'$' '{print $1}'`'='`printenv $name`'' >> .build-env;
         done
+
+.qa: &qa
+    stage: qa
+    image: jakzal/phpqa:1.9-alpine
+    tags:
+      - executor-docker
 
 .docker-source-image: &docker-source-image
     stage: build-step1
@@ -115,22 +122,18 @@ stages:
 
 .phpunit: &phpunit
     stage: test
-    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+    image: $CI_SOURCE_IMAGE_WITH_TAG
     <<: *suffix-vars
     variables:
         ENV_SUFFIX: "_TEST"
     script:
-      - cd build
-      - docker-compose up -d source mysql
-      - docker-compose exec -T source composer install --prefer-dist --no-scripts --no-interaction
-      - docker-compose exec -T source phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
-      - docker-compose exec -T source sh -c "curl -L -o phpunit.phar https://phar.phpunit.de/phpunit-6.phar && php phpunit.phar"
-    after_script:
-      - cd build
-      - docker-compose logs
-      - docker-compose down -v
+      - eval $(cat .build-env)
+      - cd /srv
+      - composer install --prefer-dist --no-scripts --no-interaction
+      - phpunit
     tags:
       - executor-docker
+    dependencies: []
 
 .secure-copy: &secure-copy
     stage: deploy
@@ -182,6 +185,11 @@ stages:
     except:
       - branches
 
+qa:php-cs-fixer:
+    <<: *qa
+    script:
+        - php-cs-fixer fix --diff --dry-run -v
+
 build:docker-source-image-master:
     <<: *docker-source-image
     <<: *env-master
@@ -215,8 +223,6 @@ build:docker-nginx-image-master:
 test:phpunit-master:
     <<: *phpunit
     <<: *job-policy-master
-    dependencies:
-      - build:docker-compose-master
 
 deploy:secure-copy-master:
     <<: *secure-copy
@@ -259,8 +265,6 @@ build:docker-nginx-image-production:
 test:phpunit-production:
     <<: *phpunit
     <<: *job-policy-production
-    dependencies:
-      - build:docker-compose-production
 
 deploy:secure-copy-production:
     <<: *secure-copy
