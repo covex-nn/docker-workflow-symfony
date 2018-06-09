@@ -124,8 +124,6 @@ stages:
     stage: test
     image: $CI_SOURCE_IMAGE_WITH_TAG
     <<: *suffix-vars
-    variables:
-        ENV_SUFFIX: "_TEST"
     script:
       - eval $(cat .build-env)
       - cd /srv
@@ -134,6 +132,21 @@ stages:
     tags:
       - executor-docker
     dependencies: []
+
+.integration: &integration
+    stage: test
+    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+    <<: *suffix-vars
+    script:
+      - cd build
+      - docker-compose up -d
+      - docker-compose exec -T php phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
+    after_script:
+      - cd build
+      - docker-compose logs
+      - docker-compose down -v
+    tags:
+      - executor-docker
 
 .secure-copy: &secure-copy
     stage: deploy
@@ -153,7 +166,7 @@ stages:
           cd '"$DEPLOY_DIRECTORY"' ;
           docker login -u gitlab-ci-token -p '"$CI_JOB_TOKEN"' '"$CI_REGISTRY"' ;
           docker-compose pull ;
-          docker-compose up -d --no-recreate nginx php spare mysql ;
+          docker-compose up -d --no-recreate ;
           docker-compose up -d --force-recreate --no-deps spare ;
           docker-compose exec -T spare phing storage-prepare database-deploy -Dsymfony.env=prod ;
           docker-compose up -d --force-recreate --no-deps php ;
@@ -164,6 +177,10 @@ stages:
           echo "[$(date -R)] web-server is up"'
     tags:
       - executor-docker
+
+.env-master: &env-test
+    variables:
+        ENV_SUFFIX: "_TEST"
 
 .env-master: &env-master
     variables:
@@ -222,7 +239,15 @@ build:docker-nginx-image-master:
 
 test:phpunit-master:
     <<: *phpunit
+    <<: *env-test
     <<: *job-policy-master
+
+test:integration-master:
+    <<: *integration
+    <<: *env-test
+    <<: *job-policy-master
+    dependencies:
+      - build:docker-compose-master
 
 deploy:secure-copy-master:
     <<: *secure-copy
@@ -264,7 +289,15 @@ build:docker-nginx-image-production:
 
 test:phpunit-production:
     <<: *phpunit
+    <<: *env-test
     <<: *job-policy-production
+
+test:integration-production:
+    <<: *integration
+    <<: *env-test
+    <<: *job-policy-production
+    dependencies:
+      - build:docker-compose-production
 
 deploy:secure-copy-production:
     <<: *secure-copy
