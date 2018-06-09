@@ -147,6 +147,7 @@ stages:
       - docker-compose down -v
     tags:
       - executor-docker
+      - docker-in-docker
 
 .secure-copy: &secure-copy
     stage: deploy

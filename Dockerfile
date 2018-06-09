@@ -33,9 +33,6 @@ FROM ${source_image} AS source_image
 
 FROM php AS base
 
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /composer/home
-
 COPY --from=composer:1.6 /usr/bin/composer /usr/bin/composer
 COPY --from=jakzal/phpqa:1.9-alpine /usr/local/bin/phpunit /usr/local/bin/
 
@@ -46,6 +43,7 @@ FROM base AS dev
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN pecl install xdebug \
+    && pecl clear-cache \
     && docker-php-ext-enable xdebug \
     && chmod 644 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && adduser --system --no-create-home --uid 1000 --gid 50 docker \
