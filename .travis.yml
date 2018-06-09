@@ -62,7 +62,7 @@ before_script:
           docker-compose -f docker-compose.deploy.yml config > build/docker-compose.yml;
           cd build;
           cat docker-compose.yml;
-          docker-compose up -d --no-recreate nginx php spare mysql;
+          docker-compose up -d --no-recreate;
           docker-compose up -d --force-recreate --no-deps spare;
           docker-compose exec -T spare phing app-deploy storage-prepare database-deploy -Dsymfony.env=prod;
           docker-compose up -d --force-recreate --no-deps php;
