@@ -43,12 +43,12 @@ FROM base AS dev
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN pecl install xdebug \
-    && pecl clear-cache \
     && docker-php-ext-enable xdebug \
     && chmod 644 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && adduser --system --no-create-home --uid 1000 --gid 50 docker \
     && mkdir -p /tmp/sessions \
-    && chmod -R 777 /tmp/sessions
+    && chmod -R 777 /tmp/sessions \
+    && rm -rf /tmp/*
 
 
 
