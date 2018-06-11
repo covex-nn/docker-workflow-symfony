@@ -1,5 +1,5 @@
 ARG source_image=scratch
-FROM php:7.2-fpm-stretch AS php
+FROM php:7.2.6-fpm-stretch AS php
 
 RUN apt-get update && apt-get install -y \
             libicu-dev \
@@ -33,8 +33,7 @@ FROM ${source_image} AS source_image
 
 FROM php AS base
 
-COPY --from=composer:1.6 /usr/bin/composer /usr/bin/composer
-COPY --from=jakzal/phpqa:1.9-alpine /usr/local/bin/phpunit /usr/local/bin/
+COPY --from=jakzal/phpqa:1.9.2-alpine /usr/local/bin/phpunit /usr/bin/composer /usr/local/bin/
 
 
 
