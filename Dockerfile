@@ -1,29 +1,30 @@
 ARG source_image=scratch
 FROM php:7.2.6-fpm-stretch AS php
 
+WORKDIR /srv
+
 RUN apt-get update && apt-get install -y \
             libicu-dev \
             zlib1g-dev \
             cron \
             netcat \
-#            libfreetype6-dev \
-#            libjpeg62-turbo-dev \
-#            libpng-dev \
-#    && docker-php-ext-configure gd \
-#            --with-freetype-dir=/usr/include/ \
-#            --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
             intl \
             opcache \
             pdo_mysql \
             zip \
-#            gd \
     && curl -sS -L -o /usr/local/bin/phing http://www.phing.info/get/phing-latest.phar \
     && chmod +x /usr/local/bin/phing \
     && docker-php-source delete \
     && rm -rf /var/lib/apt/lists/* /tmp/*
 
-WORKDIR /srv
+#RUN apt-get update && apt-get install -y \
+#            libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+#    && docker-php-ext-configure gd \
+#            --with-freetype-dir=/usr/include/ \
+#            --with-jpeg-dir=/usr/include/ \
+#    && docker-php-ext-install -j$(nproc) \
+#            gd
 
 
 
@@ -55,7 +56,7 @@ FROM base AS source
 
 ENV APP_ENV="prod"
 
-COPY composer.json composer.lock auth.json ./
+COPY *.json *.lock ./
 
 RUN composer check-platform-reqs \
     && composer install \
