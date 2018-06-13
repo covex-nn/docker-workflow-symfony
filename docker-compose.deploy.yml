@@ -30,7 +30,7 @@ services:
         << : *php-service
 
     mysql:
-        image: mysql:5.7
+        image: mysql:5.7.22
         expose:
           - 3306
         environment:

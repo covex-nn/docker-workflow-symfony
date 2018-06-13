@@ -1,5 +1,6 @@
 variables:
     CI_APP_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    CI_DEV_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/dev:$CI_COMMIT_REF_NAME"
     CI_SOURCE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/source:$CI_COMMIT_REF_NAME"
     CI_NGINX_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_NAME"
     CI_DOCKER_COMPOSE_IMAGE_WITH_TAG: "$CI_REGISTRY_IMAGE/docker-compose:$CI_COMMIT_REF_NAME"
@@ -22,7 +23,7 @@ stages:
 
 .qa: &qa
     stage: qa
-    image: jakzal/phpqa:1.9-alpine
+    image: jakzal/phpqa:1.9.2-alpine
     tags:
       - executor-docker
 
@@ -34,7 +35,18 @@ stages:
       - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --tag $CI_SOURCE_IMAGE_WITH_TAG --target source .
+      - docker pull $CI_DEV_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_DEV_IMAGE_WITH_TAG
+          --tag $CI_DEV_IMAGE_WITH_TAG
+          --target dev .
+      - docker push $CI_DEV_IMAGE_WITH_TAG
+      - docker pull $CI_SOURCE_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_DEV_IMAGE_WITH_TAG
+          --cache-from $CI_SOURCE_IMAGE_WITH_TAG
+          --tag $CI_SOURCE_IMAGE_WITH_TAG
+          --target source .
       - docker push $CI_SOURCE_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -48,7 +60,11 @@ stages:
     script:
       - eval $(cat .build-env)
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG ./docker/compose
+      - docker pull $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+          --tag $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
+          ./docker/compose
       - docker push $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -62,7 +78,11 @@ stages:
     script:
       - eval $(cat .build-env)
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --tag $CI_GIT_IMAGE_WITH_TAG ./docker/git
+      - docker pull $CI_GIT_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_GIT_IMAGE_WITH_TAG
+          --tag $CI_GIT_IMAGE_WITH_TAG
+          ./docker/git
       - docker push $CI_GIT_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -77,7 +97,16 @@ stages:
       - eval $(cat .build-env)
       - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --tag $CI_APP_IMAGE_WITH_TAG --target prod --build-arg source_image=$CI_SOURCE_IMAGE_WITH_TAG .
+      - docker pull $CI_DEV_IMAGE_WITH_TAG || true
+      - docker pull $CI_SOURCE_IMAGE_WITH_TAG || true
+      - docker pull $CI_APP_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_DEV_IMAGE_WITH_TAG
+          --cache-from $CI_SOURCE_IMAGE_WITH_TAG
+          --cache-from $CI_APP_IMAGE_WITH_TAG
+          --tag $CI_APP_IMAGE_WITH_TAG
+          --build-arg source_image=$CI_SOURCE_IMAGE_WITH_TAG
+          --target prod .
       - docker push $CI_APP_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -109,11 +138,14 @@ stages:
     script:
       - eval $(cat .build-env)
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-      - docker build --pull --tag $CI_NGINX_IMAGE_WITH_TAG --target prod
+      - docker pull $CI_NGINX_IMAGE_WITH_TAG || true
+      - docker build
+          --cache-from $CI_NGINX_IMAGE_WITH_TAG
+          --tag $CI_NGINX_IMAGE_WITH_TAG
           --build-arg server_name=$SERVER_NAME
           --build-arg server_upstream=prod
           --build-arg app_image=$CI_SOURCE_IMAGE_WITH_TAG
-          --file Dockerfile-nginx .
+          --target prod --file Dockerfile-nginx .
       - docker push $CI_NGINX_IMAGE_WITH_TAG
       - docker logout $CI_REGISTRY
     tags:
@@ -132,22 +164,6 @@ stages:
     tags:
       - executor-docker
     dependencies: []
-
-.integration: &integration
-    stage: test
-    image: $CI_DOCKER_COMPOSE_IMAGE_WITH_TAG
-    <<: *suffix-vars
-    script:
-      - cd build
-      - docker-compose up -d
-      - docker-compose exec -T php phing app-deploy storage-prepare database-deploy -Dsymfony.env=test
-    after_script:
-      - cd build
-      - docker-compose logs
-      - docker-compose down -v
-    tags:
-      - executor-docker
-      - docker-in-docker
 
 .secure-copy: &secure-copy
     stage: deploy
@@ -243,13 +259,6 @@ test:phpunit-master:
     <<: *env-test
     <<: *job-policy-master
 
-test:integration-master:
-    <<: *integration
-    <<: *env-test
-    <<: *job-policy-master
-    dependencies:
-      - build:docker-compose-master
-
 deploy:secure-copy-master:
     <<: *secure-copy
     <<: *job-policy-master
@@ -292,13 +301,6 @@ test:phpunit-production:
     <<: *phpunit
     <<: *env-test
     <<: *job-policy-production
-
-test:integration-production:
-    <<: *integration
-    <<: *env-test
-    <<: *job-policy-production
-    dependencies:
-      - build:docker-compose-production
 
 deploy:secure-copy-production:
     <<: *secure-copy
