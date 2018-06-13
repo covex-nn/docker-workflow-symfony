@@ -23,7 +23,7 @@ stages:
 
 .qa: &qa
     stage: qa
-    image: jakzal/phpqa:1.9-alpine
+    image: jakzal/phpqa:1.9.2-alpine
     tags:
       - executor-docker
 
