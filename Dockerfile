@@ -3,7 +3,7 @@ FROM php:7.2.6-fpm-stretch AS php
 
 WORKDIR /srv
 
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt install --no-install-recommends -y \
             libicu-dev \
             zlib1g-dev \
             cron \
@@ -13,12 +13,17 @@ RUN apt-get update && apt-get install -y \
             opcache \
             pdo_mysql \
             zip \
+    && docker-php-source delete \
+    && apt purge -y \
+            libicu-dev \
+            zlib1g-dev \
+    && apt autoremove -y \
+    && apt clean -y \
     && curl -sS -L -o /usr/local/bin/phing http://www.phing.info/get/phing-latest.phar \
     && chmod +x /usr/local/bin/phing \
-    && docker-php-source delete \
     && rm -rf /var/lib/apt/lists/* /tmp/*
 
-#RUN apt-get update && apt-get install -y \
+#RUN apt update && apt install -y \
 #            libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
 #    && docker-php-ext-configure gd \
 #            --with-freetype-dir=/usr/include/ \
