@@ -116,6 +116,7 @@ jobs:
               DOCKER_ENV: local
               ENV_database_host: 127.0.0.1
           before_install:
+              - sudo service mysql stop
               - if [ $COMPOSER_GITHUB_TOKEN ]; then
                     echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > auth.json;
                 else
@@ -126,11 +127,9 @@ jobs:
               - wget "https://www.phing.info/get/phing-latest.phar" --output-document="${HOME}/bin/phing"
               - chmod u+x "${HOME}/bin/phing"
               - composer install
-          before_script:
-              - sudo service mysql stop
           script:
               - docker-compose up -d
-              - sleep 10s
+              - sleep 20s
               - phing
               - phpunit
           after_success:
