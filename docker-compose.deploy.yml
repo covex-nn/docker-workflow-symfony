@@ -17,6 +17,7 @@ services:
 
     php: &php-service
         image: "${CI_APP_IMAGE_WITH_TAG}"
+        command: "php-fpm7.2"
         networks:
           - nw_internal
         env_file: .env
