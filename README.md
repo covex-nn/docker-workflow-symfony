@@ -8,12 +8,12 @@ procedures for almost zero deployment downtime.
 Only trusted base docker images are used at all stages from development to production:
 
 * `nginx:mainline`
-* `php:7.2-fpm-stretch`
+* `debian:stretch-slim` with [Sury Debian DPA][2] for PHP
 * `mysql:5.7`
 * `phpmyadmin/phpmyadmin`
 
 This repository is a `symfony/skeleton` composer project, bootstrapped by
-[Environment configurator][2] by the following commands:
+[Environment configurator][3] by the following commands:
 
 ```bash
 composer global require covex-nn/environment
@@ -48,8 +48,8 @@ phing
 php -S localhost:80 -t public
 ```
 
-But if you want to use `Nginx` as Web server, or if you do not have `PHP 7.2` installed
-on your host, execute the following instead:
+But if you want to use `Nginx` as Web server, or if you do not have `PHP 7.2`
+installed on your host, execute the following instead:
 
 ```bash
 cp docker-compose.override.yml.dist docker-compose.override.yml
@@ -57,15 +57,16 @@ docker-compose up -d
 docker-compose exec php phing
 ```
 
-Endpoint image for container with `php-fpm`, built with multi-stage [Dockerfile](Dockerfile),
-contains:
+Endpoint container with `php-fpm` is built with multi-stage [Dockerfile](Dockerfile).
+PHP extensions `intl`, `pdo_mysql`, `zip`, `opcache` and `xdebug` (for dev-environment)
+are installed by default, but a list of PHP extensions can be easily extended
+with simple `apt-get`.
 
-* PHP extensions `intl`, `mbstring`, `mcrypt`, `pdo_mysql`, `zip`, `opcache`
-  and `xdebug` (for dev-environment only); uncomment lines to install `gd`
-* `cron` (for prod-environment only); add your crontab jobs to `docker/php/app.crontab`
+* `cron` is installed for prod-environment; add your crontab jobs to `docker/app.crontab`.
 
-Also, `cache` and `log` directories are moved to a non-shared volume for dev-environmen
+* `cache` and `log` directories are moved to a non-shared volume for dev-environmen
 with `volumes` section of [docker-compose.override.yml](docker-compose.override.yml.dist)
 
 [1]: https://about.gitlab.com/features/gitlab-ci-cd/
-[2]: https://github.com/covex-nn/env-configurator
+[2]: https://packages.sury.org/php/
+[3]: https://github.com/covex-nn/env-configurator
