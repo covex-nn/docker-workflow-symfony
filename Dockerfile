@@ -1,30 +1,35 @@
 ARG source_image=scratch
-FROM php:7.2.6-fpm-stretch AS php
+FROM debian:stretch-slim AS php
+
+ENV TERM linux
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+            apt-transport-https gnupg ca-certificates curl \
+            cron netcat \
+    && echo "deb https://packages.sury.org/php/ stretch main" >> /etc/apt/sources.list.d/sury.org.list \
+    && curl -sS https://packages.sury.org/php/apt.gpg | apt-key add - \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+            php7.2-fpm \
+            php7.2-intl \
+            php7.2-mysql \
+            php7.2-xml \
+            php7.2-zip \
+    && apt-get purge --autoremove -y gnupg \
+    && apt-get clean -y \
+    && curl -sS -L -o /usr/local/bin/phing http://www.phing.info/get/phing-latest.phar \
+    && chmod +x /usr/local/bin/phing \
+    && rm -rf /var/lib/apt/lists/* /usr/share/man/* /usr/share/doc/* /var/cache/* /var/log/* /tmp/*
 
 WORKDIR /srv
 
-RUN apt-get update && apt-get install -y \
-            libicu-dev \
-            zlib1g-dev \
-            cron \
-            netcat \
-    && docker-php-ext-install -j$(nproc) \
-            intl \
-            opcache \
-            pdo_mysql \
-            zip \
-    && curl -sS -L -o /usr/local/bin/phing http://www.phing.info/get/phing-latest.phar \
-    && chmod +x /usr/local/bin/phing \
-    && docker-php-source delete \
-    && rm -rf /var/lib/apt/lists/* /tmp/*
+COPY docker/php /etc/php/7.2/
 
-#RUN apt-get update && apt-get install -y \
-#            libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
-#    && docker-php-ext-configure gd \
-#            --with-freetype-dir=/usr/include/ \
-#            --with-jpeg-dir=/usr/include/ \
-#    && docker-php-ext-install -j$(nproc) \
-#            gd
+EXPOSE 9000
+
+CMD ["php-fpm7.2"]
 
 
 
@@ -40,15 +45,12 @@ COPY --from=jakzal/phpqa:1.9.2-alpine /usr/local/bin/phpunit /usr/bin/composer /
 
 FROM base AS dev
 
-COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && chmod 644 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+            php-xdebug bash \
     && adduser --system --no-create-home --uid 1000 --gid 50 docker \
     && mkdir -p /tmp/sessions \
-    && chmod -R 777 /tmp/sessions \
-    && rm -rf /tmp/*
+    && chmod -R 777 /tmp/sessions
 
 
 
@@ -81,4 +83,4 @@ ENV APP_ENV="prod"
 
 COPY --from=source_image /srv/ .
 
-RUN cat docker/php/app.crontab > /var/spool/cron/crontabs/root
+RUN cat docker/app.crontab > /var/spool/cron/crontabs/root
