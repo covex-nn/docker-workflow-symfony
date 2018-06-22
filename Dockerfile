@@ -45,8 +45,8 @@ FROM base AS dev
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-            php-xdebug bash \
-    && adduser --system --no-create-home --uid 1000 --gid 50 docker \
+            php-xdebug \
+    && apt-get clean -y \
     && mkdir -p /tmp/sessions \
     && chmod -R 777 /tmp/sessions
 
