@@ -79,7 +79,7 @@ jobs:
                   --tag $CI_NGINX_IMAGE_WITH_TAG
                   --build-arg server_name=$SERVER_NAME
                   --build-arg server_upstream=prod
-                  --build-arg app_image=$CI_SOURCE_IMAGE_WITH_TAG
+                  --build-arg source_image=$CI_SOURCE_IMAGE_WITH_TAG
                   --target prod --file Dockerfile-nginx .
           after_script:
               - docker push $CI_NGINX_IMAGE_WITH_TAG
