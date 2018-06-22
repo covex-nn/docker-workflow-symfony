@@ -7,16 +7,17 @@ procedures for almost zero deployment downtime.
 
 Only trusted base docker images are used at all stages from development to production:
 
-* `nginx:mainline`
+* `nginx:1.14`
 * `debian:stretch-slim` with [Sury Debian DPA][2] for PHP
 * `mysql:5.7`
 * `phpmyadmin/phpmyadmin`
 
 This repository is a `symfony/skeleton` composer project, bootstrapped by
-[Environment configurator][3] by the following commands:
+[Environment configurator][3] with the following commands:
 
 ```bash
 composer global require covex-nn/environment
+composer global require covex-nn/environment-repository
 composer create-project symfony/skeleton .
 composer env:apply docker-ci
 ```
