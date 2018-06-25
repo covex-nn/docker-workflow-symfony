@@ -29,8 +29,6 @@ COPY docker/php /etc/php/7.2/
 
 EXPOSE 9000
 
-CMD ["php-fpm7.2"]
-
 
 
 FROM ${source_image} AS source_image
@@ -47,10 +45,12 @@ FROM base AS dev
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-            php-xdebug bash \
-    && adduser --system --no-create-home --uid 1000 --gid 50 docker \
+            php-xdebug \
+    && apt-get clean -y \
     && mkdir -p /tmp/sessions \
     && chmod -R 777 /tmp/sessions
+
+CMD ["php-fpm7.2"]
 
 
 
@@ -84,3 +84,5 @@ ENV APP_ENV="prod"
 COPY --from=source_image /srv/ .
 
 RUN cat docker/app.crontab > /var/spool/cron/crontabs/root
+
+CMD ["php-fpm7.2"]
