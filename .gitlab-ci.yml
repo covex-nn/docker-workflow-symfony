@@ -191,6 +191,7 @@ stages:
           echo "[$(date -R)] web-server is down" ;
           docker-compose stop nginx ;
           docker-compose up -d nginx ;
+          docker logout '"$CI_REGISTRY"' ;
           echo "[$(date -R)] web-server is up"'
     tags:
       - executor-docker
