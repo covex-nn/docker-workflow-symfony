@@ -24,7 +24,7 @@ jobs:
         - stage: Build Step1
           language: generic
           before_install:
-              - if [ "$TRAVIS_PULL_REQUEST" = "true" ]; then exit 0; fi
+              - if [ "$TRAVIS_SECURE_ENV_VARS" = "false" ]; then exit 0; fi
               - docker login -u covex_nn -p $QUAY_CLI_PASSWORD quay.io
           install:
               - docker pull $CI_DEV_IMAGE_WITH_TAG || true
@@ -47,7 +47,7 @@ jobs:
         - stage: Build Step2
           language: generic
           before_install:
-              - if [ "$TRAVIS_PULL_REQUEST" = "true" ]; then exit 0; fi
+              - if [ "$TRAVIS_SECURE_ENV_VARS" = "false" ]; then exit 0; fi
               - docker login -u covex_nn -p $QUAY_CLI_PASSWORD quay.io
           install:
               - docker pull $CI_DEV_IMAGE_WITH_TAG || true
@@ -68,7 +68,7 @@ jobs:
         - stage: Build Step2
           language: generic
           before_install:
-              - if [ "$TRAVIS_PULL_REQUEST" = "true" ]; then exit 0; fi
+              - if [ "$TRAVIS_SECURE_ENV_VARS" = "false" ]; then exit 0; fi
               - docker login -u covex_nn -p $QUAY_CLI_PASSWORD quay.io
           install:
               - docker pull $CI_SOURCE_IMAGE_WITH_TAG || true
