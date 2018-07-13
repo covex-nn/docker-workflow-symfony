@@ -269,7 +269,7 @@ deploy:secure-copy-master:
       - build:docker-compose-master
 
 build:docker-source-image-production:
-    <<: *docker-compose-image
+    <<: *docker-source-image
     <<: *env-production
     <<: *job-policy-production
 
